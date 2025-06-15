@@ -1,6 +1,8 @@
-import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Stack } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getWeatherIconName } from '../utils/weatherIcons';
 
 interface WeatherData {
   location: string;
@@ -121,11 +123,15 @@ export default function WeatherScreen() {
       {loading && <ActivityIndicator size="large" />}
       {weather && 
         <View style={styles.result}>
+          <MaterialCommunityIcons
+            name={getWeatherIconName(weather.weathercode)}
+            size={64}
+            color="#bfbfbf"
+          />
           <Text style={styles.weatherText}>Location: {weather.location}</Text>
           <Text style={styles.weatherText}>Temperature: {weather.temperature}</Text>
           <Text style={styles.weatherText}>Windspeed: {weather.windspeed}</Text>
           <Text style={styles.weatherText}>Humidity: {weather.humidity}%</Text>
-          <Text style={styles.weatherText}>Weathercode: {weather.weathercode}</Text>
         </View>
       }
     </View>
