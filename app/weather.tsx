@@ -2,17 +2,25 @@ import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 
+interface WeatherData {
+  location: string;
+  temperature: number;
+  windspeed: number;
+  weathercode: number;
+}
+
 export default function WeatherScreen() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
-  const [coordinates, setCoordinates] = useState({
-    lat: "",
-    lon: "",
-  });
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  // const [coordinates, setCoordinates] = useState({
+  //   lat: "",
+  //   lon: "",
+  // });
 
-  useEffect(() => {
-    fetchWeather();
-  }, [coordinates])
+  // useEffect(() => {
+  //   fetchWeather();
+  // }, [coordinates]);
 
   const fetchCityCoordinates = async () => {
     if (!city.trim()) {
@@ -21,17 +29,47 @@ export default function WeatherScreen() {
     }
 
     setLoading(true);
+    setWeather(null);
 
     try {
+      // First, I need to fetch coordinates for User's city input
       const geoCoords = await fetch(
         // TODO: &count=1 tells to fetch only one city instance - where are multiple of them actually!
         `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
       )
       const geoData = await geoCoords.json();
-      setCoordinates({
-        lat: geoData.results[0].latitude,
-        lon: geoData.results[0].longitude,
+
+      if (!geoData.results || !geoData.results.length) {
+        throw new Error('City not found.');
+      }
+
+      const { latitude, longitude, country, name } = geoData.results[0];
+    
+      // setCoordinates({
+      //   lat: latitude,
+      //   lon: longitude,
+      // })
+
+      // Then, I can query open meteo API and get weather data
+      const weatherRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+      );
+
+      const weatherData = await weatherRes.json();
+
+      if (!weatherData.current_weather) {
+        throw new Error('Weather data unavailable.');
+      }
+
+      // populate weather component state with the data fetched from the APIs
+      console.log(weatherData);
+      setWeather({
+        location: `${name}, ${country}`,
+        temperature: weatherData.current_weather.temperature,
+        windspeed: weatherData.current_weather.windspeed,
+        weathercode: weatherData.current_weather.weathercode,
       })
+      console.log(weather);
     } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
@@ -39,9 +77,9 @@ export default function WeatherScreen() {
     }
   }
 
-  const fetchWeather = async () => {
-    console.log(coordinates);
-  }
+  // const fetchWeather = async () => {
+  //   console.log(coordinates);
+  // }
 
   return (
     <View style={styles.container}>
@@ -58,6 +96,14 @@ export default function WeatherScreen() {
         <Button title="Search" onPress={fetchCityCoordinates} />
       </View>
       {loading && <ActivityIndicator size="large" />}
+      {weather && 
+        <View>
+          <Text>Location: {weather.location}</Text>
+          <Text>Temperature: {weather.temperature}</Text>
+          <Text>Windspeed: {weather.windspeed}</Text>
+          <Text>Weathercode: {weather.weathercode}</Text>
+        </View>
+      }
     </View>
   )
 }
