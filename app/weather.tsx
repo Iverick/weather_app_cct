@@ -7,6 +7,7 @@ interface WeatherData {
   temperature: number;
   windspeed: number;
   weathercode: number;
+  humidity: number;
 }
 
 export default function WeatherScreen() {
@@ -52,7 +53,7 @@ export default function WeatherScreen() {
 
       // Then, I can query open meteo API and get weather data
       const weatherRes = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m`
       );
 
       const weatherData = await weatherRes.json();
@@ -61,15 +62,37 @@ export default function WeatherScreen() {
         throw new Error('Weather data unavailable.');
       }
 
-      // populate weather component state with the data fetched from the APIs
+      console.log("weatherData");
       console.log(weatherData);
+      // Populate weather component state with the data fetched from the APIs
+
+      // Humidity returned in a separate object, that contains 2 arrays of time and humidity values
+      // Current time index can be used as a key to map them together
+      const currentTime = new Date(weatherData.current_weather.time);
+      const hourlyTimes = weatherData.hourly.time.map((t: string) => new Date(t));
+      let closestIndex = 0;
+
+      // Loop through hourly times array until we get index of the closest to the current time value
+      for (let i = 0; i < hourlyTimes.length; i++) {
+        const hourlyTime = hourlyTimes[i];
+
+        console.log("comparing times: " + (hourlyTime <= currentTime));
+
+        if (hourlyTime <= currentTime) {
+          closestIndex = i;
+        } else {
+          break;
+        }
+      }
+      const humidity = weatherData.hourly.relative_humidity_2m[closestIndex];
+
       setWeather({
         location: `${name}, ${country}`,
         temperature: weatherData.current_weather.temperature,
         windspeed: weatherData.current_weather.windspeed,
         weathercode: weatherData.current_weather.weathercode,
+        humidity,
       })
-      console.log(weather);
     } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
@@ -97,11 +120,12 @@ export default function WeatherScreen() {
       </View>
       {loading && <ActivityIndicator size="large" />}
       {weather && 
-        <View>
-          <Text>Location: {weather.location}</Text>
-          <Text>Temperature: {weather.temperature}</Text>
-          <Text>Windspeed: {weather.windspeed}</Text>
-          <Text>Weathercode: {weather.weathercode}</Text>
+        <View style={styles.result}>
+          <Text style={styles.weatherText}>Location: {weather.location}</Text>
+          <Text style={styles.weatherText}>Temperature: {weather.temperature}</Text>
+          <Text style={styles.weatherText}>Windspeed: {weather.windspeed}</Text>
+          <Text style={styles.weatherText}>Humidity: {weather.humidity}%</Text>
+          <Text style={styles.weatherText}>Weathercode: {weather.weathercode}</Text>
         </View>
       }
     </View>
@@ -133,4 +157,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 5,
   },
-})
+  result: {
+    marginTop: 20,
+    backgroundColor: "#fff8dd",
+  },
+  weatherText: {
+    fontSize: 18,
+    marginVertical: 4,
+  },
+});
