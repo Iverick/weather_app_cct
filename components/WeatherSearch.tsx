@@ -1,14 +1,16 @@
-import React from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import React, { Dispatch, SetStateAction } from 'react';
+import { View, TextInput, Button, StyleSheet, Switch, Text } from 'react-native';
 
 interface Props {
   city: string;
   setCity: (text: string) => void;
   onSubmit: () => void;
+  useFahrenheit: boolean;
+  setUseFahrenheit: Dispatch<SetStateAction<boolean>>;
 }
 
 // Displays weather search field and button inside container
-export default function WeatherSearch({ city, setCity, onSubmit }: Props) {
+export default function WeatherSearch({ city, setCity, onSubmit, useFahrenheit, setUseFahrenheit }: Props) {
   return(
     <View style={styles.searchContainer}>
       <TextInput
@@ -17,6 +19,14 @@ export default function WeatherSearch({ city, setCity, onSubmit }: Props) {
         value={city}
         onChangeText={setCity}
         />
+      <View style={styles.switchContainer}>
+        <Text style={styles.celsiusText}>°C</Text>
+        <Switch
+          value={useFahrenheit}
+          onValueChange={setUseFahrenheit}
+        />
+        <Text style={styles.fahrenheitText}>°F</Text>
+      </View>
       <Button title="Search" onPress={onSubmit} />
     </View>
   );
@@ -26,6 +36,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     marginBottom: 20,
+    flex: 1,
   },
   input: {
     flex: 1,
@@ -34,5 +45,17 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
     borderRadius: 5,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 8,
+    paddingHorizontal: 5,
+  },
+  celsiusText: {
+    marginRight: 8,
+  },
+  fahrenheitText: {
+    marginLeft: 8,
   },
 });

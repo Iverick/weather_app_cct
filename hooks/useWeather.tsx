@@ -22,7 +22,8 @@ export function useWeather() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
+  const [useFahrenheit, setUseFahrenheit] = useState(false);
   
   const fetchWeather = async () => {
     if (!city.trim()) {
@@ -48,11 +49,14 @@ export function useWeather() {
 
       const { latitude, longitude, country, name } = geoData.results[0];
 
+      const temperatureUnit = useFahrenheit ? "fahrenheit" : "celsius";
+      const windUnit = useFahrenheit ? "mph" : "kmh";
+
       // Then, I can query open meteo API and get weather data
       const weatherRes = await fetch(
         // latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m - to get current weather
         // &daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto - forecast
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto&temperature_unit=${temperatureUnit}&windspeed_unit=${windUnit}`
       );
 
       const weatherData = await weatherRes.json();
@@ -111,5 +115,5 @@ export function useWeather() {
     }
   }
 
-  return { weather, city, setCity, loading, error, fetchWeather };
+  return { weather, city, setCity, loading, error, fetchWeather, useFahrenheit, setUseFahrenheit, };
 }

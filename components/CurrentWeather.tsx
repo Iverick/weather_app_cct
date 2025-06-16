@@ -7,10 +7,11 @@ import { formatCurrentTime } from '../utils/time';
 
 interface Props {
   weather: WeatherData;
+  useFahrenheit: boolean;
 }
 
 // This components is used to display current weather data
-export default function CurrentWeather({ weather }: Props) {
+export default function CurrentWeather({ weather, useFahrenheit }: Props) {
   return (
     <View style={styles.container}>
       <MaterialCommunityIcons
@@ -22,8 +23,8 @@ export default function CurrentWeather({ weather }: Props) {
         {formatCurrentTime(weather.currentTime)}
       </Text>
       <Text style={styles.text}>Location: {weather.location}</Text>
-      <Text style={styles.text}>Temperature: {weather.temperature}</Text>
-      <Text style={styles.text}>Windspeed: {weather.windspeed}</Text>
+      <Text style={styles.text}>Temperature: {weather.temperature}°{useFahrenheit ? "F" : "C"}</Text>
+      <Text style={styles.text}>Windspeed: {weather.windspeed} {useFahrenheit ? "mph" : "km/h"}</Text>
       <Text style={styles.text}>Humidity: {weather.humidity}%</Text>
     </View>
   )

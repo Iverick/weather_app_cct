@@ -3,14 +3,14 @@ import { View, FlatList, Text, StyleSheet } from 'react-native';
 import { ForecastDay } from '../hooks/useWeather';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getWeatherIconName } from '../utils/weatherIcons';
-import { formatForecastDate } from '../utils/time';
 
 interface Props {
   forecast: ForecastDay[];
+  useFahrenheit: boolean;
 }
 
 // This components is used to display a 5 days weather forecast
-export default function ForecastList({ forecast }: Props) {
+export default function ForecastList({ forecast, useFahrenheit }: Props) {
   return (
     <FlatList
       horizontal
@@ -26,10 +26,10 @@ export default function ForecastList({ forecast }: Props) {
             })}
           </Text>
           <Text style={styles.cardTemp}>
-            {item.max}
+            {item.max}°{useFahrenheit ? "F" : "C"}
           </Text>
           <Text style={styles.cardTemp}>
-            {item.min}
+            {item.min}°{useFahrenheit ? "F" : "C"}
           </Text>
           <MaterialCommunityIcons
             name={getWeatherIconName(item.code)}
