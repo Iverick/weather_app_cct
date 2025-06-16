@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getWeatherIconName } from '../utils/weatherIcons';
 
 interface WeatherData {
-  currentTime: Date;
+  currentTime: string;
   location: string;
   temperature: number;
   windspeed: number;
@@ -19,6 +19,26 @@ interface ForecastDay {
   min: number;
   max: number;
   code: number;
+}
+
+function formatCurrentTime(rawTime: string): string {
+  const currentDate = new Date();
+  const weatherDate = new Date(rawTime);
+
+  const isToday = currentDate.toDateString() === weatherDate.toDateString();
+
+  const label = isToday ? "Today" : weatherDate.toLocaleString(undefined, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+
+  const time = weatherDate.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return `${label}, ${time}`;
 }
 
 export default function WeatherScreen() {
@@ -97,7 +117,7 @@ export default function WeatherScreen() {
       );
 
       setWeather({
-        currentTime: new Date(weatherData.current_weather.time),
+        currentTime: weatherData.current_weather.time,
         location: `${name}, ${country}`,
         temperature: weatherData.current_weather.temperature,
         windspeed: weatherData.current_weather.windspeed,
@@ -135,13 +155,7 @@ export default function WeatherScreen() {
             color="#bfbfbf"
           />
           <Text style={styles.weatherText}>
-            {weather.currentTime.toLocaleString(undefined, {
-              weekday: 'short',
-              day: 'numeric',
-              month: 'short',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {formatCurrentTime(weather.currentTime)}
           </Text>
           <Text style={styles.weatherText}>Location: {weather.location}</Text>
           <Text style={styles.weatherText}>Temperature: {weather.temperature}</Text>
