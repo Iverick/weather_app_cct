@@ -1,3 +1,4 @@
+// Maps provided code value to code icon string
 export function getWeatherIconName(code: number): any {
   if (code === 0) return 'weather-sunny';
   if (code >= 1 && code <= 3) return 'weather-partly-cloudy';
