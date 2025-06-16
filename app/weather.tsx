@@ -1,29 +1,30 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getWeatherIconName } from '../utils/weatherIcons';
 
 interface WeatherData {
+  currentTime: Date;
   location: string;
   temperature: number;
   windspeed: number;
   weathercode: number;
   humidity: number;
+  forecast: ForecastDay[];
+}
+
+interface ForecastDay {
+  date: string;
+  min: number;
+  max: number;
+  code: number;
 }
 
 export default function WeatherScreen() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  // const [coordinates, setCoordinates] = useState({
-  //   lat: "",
-  //   lon: "",
-  // });
-
-  // useEffect(() => {
-  //   fetchWeather();
-  // }, [coordinates]);
 
   const fetchCityCoordinates = async () => {
     if (!city.trim()) {
@@ -47,15 +48,12 @@ export default function WeatherScreen() {
       }
 
       const { latitude, longitude, country, name } = geoData.results[0];
-    
-      // setCoordinates({
-      //   lat: latitude,
-      //   lon: longitude,
-      // })
 
       // Then, I can query open meteo API and get weather data
       const weatherRes = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m`
+        // latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m - to get current weather
+        // &daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto - forecast
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto`
       );
 
       const weatherData = await weatherRes.json();
@@ -78,8 +76,6 @@ export default function WeatherScreen() {
       for (let i = 0; i < hourlyTimes.length; i++) {
         const hourlyTime = hourlyTimes[i];
 
-        console.log("comparing times: " + (hourlyTime <= currentTime));
-
         if (hourlyTime <= currentTime) {
           closestIndex = i;
         } else {
@@ -88,12 +84,26 @@ export default function WeatherScreen() {
       }
       const humidity = weatherData.hourly.relative_humidity_2m[closestIndex];
 
+      console.log("daily");
+      console.log(weatherData.daily);
+
+      const forecast: ForecastDay[] = weatherData.daily.time.map((
+        date: string, index: number) => ({
+          date,
+          min: weatherData.daily.temperature_2m_min[index],
+          max: weatherData.daily.temperature_2m_max[index],
+          code: weatherData.daily.weather_code[index],
+        })
+      );
+
       setWeather({
+        currentTime: new Date(weatherData.current_weather.time),
         location: `${name}, ${country}`,
         temperature: weatherData.current_weather.temperature,
         windspeed: weatherData.current_weather.windspeed,
         weathercode: weatherData.current_weather.weathercode,
         humidity,
+        forecast,
       })
     } catch (error: any) {
       Alert.alert('Error', error.message);
@@ -101,10 +111,6 @@ export default function WeatherScreen() {
       setLoading(false);
     }
   }
-
-  // const fetchWeather = async () => {
-  //   console.log(coordinates);
-  // }
 
   return (
     <View style={styles.container}>
@@ -128,10 +134,49 @@ export default function WeatherScreen() {
             size={64}
             color="#bfbfbf"
           />
+          <Text style={styles.weatherText}>
+            {weather.currentTime.toLocaleString(undefined, {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
           <Text style={styles.weatherText}>Location: {weather.location}</Text>
           <Text style={styles.weatherText}>Temperature: {weather.temperature}</Text>
           <Text style={styles.weatherText}>Windspeed: {weather.windspeed}</Text>
           <Text style={styles.weatherText}>Humidity: {weather.humidity}%</Text>
+
+          {/* Displaying 5 days weather forecast */}
+          <FlatList
+            horizontal
+            data={weather.forecast}
+            keyExtractor={(item) => item.date}
+            contentContainerStyle={{ paddingVertical: 10 }}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => (
+              <View style={styles.card}>
+                <Text style={styles.cardDate}>
+                  {new Date(item.date).toLocaleDateString(undefined, {
+                    weekday: 'short',
+                  })}
+                </Text>
+                <Text style={styles.cardTemp}>
+                  {item.max}
+                </Text>
+                <Text style={styles.cardTemp}>
+                  {item.min}
+                </Text>
+                <MaterialCommunityIcons
+                  name={getWeatherIconName(item.code)}
+                  size={32}
+                  style={styles.icon}
+                  color="#bfbfbf"
+                />
+              </View>
+            )}
+          />
         </View>
       }
     </View>
@@ -171,4 +216,26 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginVertical: 4,
   },
+  card: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    padding: 10,
+    marginRight: 10,
+    alignItems: "center",
+    width: 80,
+  },
+  cardDate: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  cardTemp: {
+    marginTop: 5,
+    fontSize: 14,
+    fontWeight: "semibold",
+    textAlign: "center",
+  },
+  icon: {
+    marginTop: 10,
+  }
 });
