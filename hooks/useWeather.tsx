@@ -1,3 +1,4 @@
+import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -27,7 +28,7 @@ export function useWeather() {
   
   const fetchWeather = async () => {
     if (!city.trim()) {
-      Alert.alert('Error', 'Please enter a city name.');
+      setError("Please enter a city name.");
       return;
     }
 
@@ -49,16 +50,9 @@ export function useWeather() {
 
       const { latitude, longitude, country, name } = geoData.results[0];
 
-      const temperatureUnit = useFahrenheit ? "fahrenheit" : "celsius";
-      const windUnit = useFahrenheit ? "mph" : "kmh";
-
-      // Then, I can query open meteo API and get weather data
-      const weatherRes = await fetch(
-        // latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m - to get current weather
-        // &daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto - forecast
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=5&timezone=auto&temperature_unit=${temperatureUnit}&windspeed_unit=${windUnit}`
-      );
-
+      // Then, I can create an API URL and use it to query open meteo API and get weather data
+      const weatherUrl = buildWeatherUrl({ latitude, longitude, useFahrenheit });
+      const weatherRes = await fetch(weatherUrl);
       const weatherData = await weatherRes.json();
 
       if (!weatherData.current_weather) {
@@ -68,7 +62,7 @@ export function useWeather() {
       console.log("weatherData");
       console.log(weatherData);
       // Populate weather component state with the data fetched from the APIs
-
+      
       // Humidity returned in a separate object, that contains 2 arrays of time and humidity values
       // Current time index can be used as a key to map them together
       const currentTime = new Date(weatherData.current_weather.time);
@@ -90,6 +84,7 @@ export function useWeather() {
       console.log("daily");
       console.log(weatherData.daily);
 
+      // Parse returned weatherData.daily.time array to get the weather forecast
       const forecast: ForecastDay[] = weatherData.daily.time.map((
         date: string, index: number) => ({
           date,
@@ -115,5 +110,14 @@ export function useWeather() {
     }
   }
 
-  return { weather, city, setCity, loading, error, fetchWeather, useFahrenheit, setUseFahrenheit, };
+  return {
+    weather,
+    city,
+    setCity,
+    loading,
+    error,
+    fetchWeather,
+    useFahrenheit,
+    setUseFahrenheit,
+  };
 }

@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react';
-import { View, TextInput, Button, StyleSheet, Switch, Text } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable } from 'react-native';
 
 interface Props {
   city: string;
@@ -27,7 +27,9 @@ export default function WeatherSearch({ city, setCity, onSubmit, useFahrenheit, 
         />
         <Text style={styles.fahrenheitText}>°F</Text>
       </View>
-      <Button title="Search" onPress={onSubmit} />
+      <Pressable style={styles.searchButton} onPress={onSubmit}>
+        <Text style={styles.searchButtonText}>Search</Text>
+      </Pressable>
     </View>
   );
 }
@@ -57,5 +59,17 @@ const styles = StyleSheet.create({
   },
   fahrenheitText: {
     marginLeft: 8,
+  },
+  searchButton: {
+    backgroundColor: "#1e90ff",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    justifyContent: "center",
+  },
+  searchButtonText: {
+    color: "#fff",
+    fontWeight: '600',
+    fontSize: 16,
   },
 });

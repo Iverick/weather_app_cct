@@ -6,25 +6,8 @@ import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 
-interface WeatherData {
-  currentTime: string;
-  location: string;
-  temperature: number;
-  windspeed: number;
-  weathercode: number;
-  humidity: number;
-  forecast: ForecastDay[];
-}
-
-interface ForecastDay {
-  date: string;
-  min: number;
-  max: number;
-  code: number;
-}
-
 export default function WeatherScreen() {
-const {
+  const {
     weather,
     city,
     setCity,
