@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function WeatherScreen() {
   const {
@@ -14,6 +15,7 @@ export default function WeatherScreen() {
     loading,
     error,
     fetchWeather,
+    fetchWeatherForCurrentLocation,
     useFahrenheit,
     setUseFahrenheit,
   } = useWeather();
@@ -25,10 +27,18 @@ export default function WeatherScreen() {
 
   return (
     <View style={styles.container}>
+
+      {/* Location button */}
+      <Pressable
+        onPress={fetchWeatherForCurrentLocation}
+        style={styles.locationButton}
+      >
+        <MaterialCommunityIcons name="home-map-marker" size={28} color="#1e90ff" />
+      </Pressable>
+
       <Stack.Screen options={{ title: 'Weather' }} />
       <Text style={styles.title}>Search Weather by City</Text>
-
-      <View style={{ display: "flex", flexDirection: "row"}}>
+      <View style={styles.searchForm}>
         <WeatherSearch
           city={city}
           setCity={setCity}
@@ -36,8 +46,6 @@ export default function WeatherScreen() {
           useFahrenheit={useFahrenheit}
           setUseFahrenheit={setUseFahrenheit}
         />
-        
-        
       </View>
       {loading && <ActivityIndicator size="large" />}
       {error && (
@@ -65,11 +73,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: "#fff",
   },
+  locationButton: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    padding: 8,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+  },
+  searchForm: {
+    display: "flex",
+    flexDirection: "row",
   },
   error: {
     color: "red",

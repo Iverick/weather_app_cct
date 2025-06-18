@@ -1,6 +1,7 @@
-import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import * as Location from 'expo-location';
+import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 
 export interface ForecastDay {
   date: string;
@@ -26,6 +27,7 @@ export function useWeather() {
   const [error, setError] = useState<string | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(false);
   
+  // Method fetches weather data for required city
   const fetchWeather = async () => {
     if (!city.trim()) {
       setError("Please enter a city name.");
@@ -109,6 +111,60 @@ export function useWeather() {
       setLoading(false);
     }
   }
+  
+  async function fetchWeatherForCurrentLocation() {
+    setCity("");
+    setLoading(true);
+    setWeather(null);
+    setError(null);
+
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        throw new Error("Permission to access location was denied");
+      }
+
+      // Get devices coordinates with expo-location method
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      // Query API URL
+      const url = buildWeatherUrl({ latitude, longitude, useFahrenheit });
+      const weatherRes = await fetch(url);
+      const weatherData = await weatherRes.json();
+      console.log(weatherData);
+
+      const currentTime = weatherData.current_weather.time;
+      const hourlyTimes = weatherData.hourly.time.map((t: string) => new Date(t));
+      const currentDate = new Date(currentTime);
+      let humidity = 0;
+      for (let i = 0; i < hourlyTimes.length; i++) {
+        if (hourlyTimes[i] <= currentDate) humidity = weatherData.hourly.relative_humidity_2m[i];
+        else break;
+      }
+
+      const forecast = weatherData.daily.time.map((date: string, i: number) => ({
+        date,
+        min: weatherData.daily.temperature_2m_min[i],
+        max: weatherData.daily.temperature_2m_max[i],
+        code: weatherData.daily.weather_code[i],
+      }));
+
+      setWeather({
+        location: 'Current location',
+        temperature: weatherData.current_weather.temperature,
+        windspeed: weatherData.current_weather.windspeed,
+        weathercode: weatherData.current_weather.weathercode,
+        humidity,
+        currentTime,
+        forecast,
+      });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return {
     weather,
@@ -117,6 +173,7 @@ export function useWeather() {
     loading,
     error,
     fetchWeather,
+    fetchWeatherForCurrentLocation,
     useFahrenheit,
     setUseFahrenheit,
   };
