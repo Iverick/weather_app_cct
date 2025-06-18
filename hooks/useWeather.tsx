@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import * as Location from 'expo-location';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
+import { fetchCityCoordinates } from '@/utils/geocoding';
 
 export interface ForecastDay {
   date: string;
@@ -34,24 +35,14 @@ export function useWeather() {
     setLoading(true);
     setWeather(null);
     setError(null);
-    
+
     try {
       if (!city.trim()) {
         throw new Error("Please enter a city name.");
       }
 
-      // First, I need to fetch coordinates for User's city input
-      const geoCoords = await fetch(
-        // TODO: &count=1 tells to fetch only one city instance - where are multiple of them actually!
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
-      )
-      const geoData = await geoCoords.json();
-
-      if (!geoData.results || !geoData.results.length) {
-        throw new Error("City not found.");
-      }
-
-      const { latitude, longitude, country, name } = geoData.results[0];
+      // Use helper method to get geo data for the provided city string
+      const { latitude, longitude, name, country } = await fetchCityCoordinates(city);
 
       await fetchAndParseWeather(latitude, longitude, `${name}, ${country}`);
     } catch (error: any) {

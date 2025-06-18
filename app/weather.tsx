@@ -21,6 +21,8 @@ export default function WeatherScreen() {
   } = useWeather();
 
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
+
+  // TODO: Fix it to properly integrate with the fetchWeatherForCurrentLocation new method
   useEffect(() => {
     if (weather) fetchWeather();
   }, [useFahrenheit]);
@@ -53,6 +55,7 @@ export default function WeatherScreen() {
           {error}
         </Text>
       )}
+      {/* Weather data displayed here */}
       {weather && 
         <View style={styles.weatherContainer}>
           <CurrentWeather weather={weather} useFahrenheit={useFahrenheit} />
