@@ -18,13 +18,19 @@ export default function WeatherScreen() {
     fetchWeatherForCurrentLocation,
     useFahrenheit,
     setUseFahrenheit,
+    lastFetchSource,
   } = useWeather();
 
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
-
-  // TODO: Fix it to properly integrate with the fetchWeatherForCurrentLocation new method
   useEffect(() => {
-    if (weather) fetchWeather();
+    if (!weather) return;
+
+    // Allows to properly refetch weather data in fahrenheit units for the last search location
+    if (lastFetchSource === 'city') {
+      fetchWeather();
+    } else if (lastFetchSource === 'location') {
+      fetchWeatherForCurrentLocation();
+    }
   }, [useFahrenheit]);
 
   return (

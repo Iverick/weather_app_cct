@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
 import * as Location from 'expo-location';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { fetchCityCoordinates } from '@/utils/geocoding';
@@ -21,12 +20,15 @@ export interface WeatherData {
   forecast: ForecastDay[];
 }
 
+type Source = 'city' | 'location' | null;
+
 export function useWeather() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(false);
+  const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
   
   /*
    * Method fetches weather data for the set city value
@@ -35,6 +37,7 @@ export function useWeather() {
     setLoading(true);
     setWeather(null);
     setError(null);
+    setLastFetchSource('city');
 
     try {
       if (!city.trim()) {
@@ -60,6 +63,7 @@ export function useWeather() {
     setLoading(true);
     setWeather(null);
     setError(null);
+    setLastFetchSource('location');
 
     try {
       // Get location permission access
@@ -90,6 +94,7 @@ export function useWeather() {
     fetchWeatherForCurrentLocation,
     useFahrenheit,
     setUseFahrenheit,
+    lastFetchSource,
   };
 
   /*
