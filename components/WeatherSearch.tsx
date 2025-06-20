@@ -1,3 +1,4 @@
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 import React, { Dispatch, SetStateAction } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable } from 'react-native';
 
@@ -11,6 +12,8 @@ interface Props {
 
 // Displays weather search field and button inside container
 export default function WeatherSearch({ city, setCity, onSubmit, useFahrenheit, setUseFahrenheit }: Props) {
+  const { clearHistory } = useSearchHistory();
+  
   return(
     <View style={styles.searchContainer}>
       <TextInput
@@ -29,6 +32,9 @@ export default function WeatherSearch({ city, setCity, onSubmit, useFahrenheit, 
       </View>
       <Pressable style={styles.searchButton} onPress={onSubmit}>
         <Text style={styles.searchButtonText}>Search</Text>
+      </Pressable>
+      <Pressable onPress={clearHistory} style={{ marginTop: 10 }}>
+        <Text style={{ color: 'red' }}>Clear search history</Text>
       </Pressable>
     </View>
   );
