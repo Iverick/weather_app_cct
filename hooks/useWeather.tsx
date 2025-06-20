@@ -37,11 +37,14 @@ export function useWeather() {
   /*
    * Method fetches weather data for the set city value
    */
-  const fetchWeather = async () => {
+  const fetchWeather = async (forceAPICall: boolean = false) => {
     setLoading(true);
     setWeather(null);
     setError(null);
     setLastFetchSource('city');
+
+    console.log("forced to fetch from API: ")
+    console.log(forceAPICall)
 
     try {
       if (!city.trim()) {
@@ -51,11 +54,13 @@ export function useWeather() {
       // First, try to fetch a cached weather data for the city from the storage
       // TODO: perhaps cacheKey should be more unique and include coordinates
       const cacheKey = `city:${city.trim().toLowerCase()}`;
-      const cachedWeather = await getCached<WeatherData>(cacheKey);
-      if (cachedWeather) {
-        // If weather found in cache, set cached weather data and early terminate the function execution
-        setWeather(cachedWeather);
-        return;
+      if (!forceAPICall) {
+        const cachedWeather = await getCached<WeatherData>(cacheKey);
+        if (cachedWeather) {
+          // If weather found in cache, set cached weather data and early terminate the function execution
+          setWeather(cachedWeather);
+          return;
+        }
       }
 
       // Use helper method to get geo data for the provided city string
@@ -96,7 +101,7 @@ export function useWeather() {
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
 
-      // First, try to fetch a cached weather data for the device location from the storage
+      // Try to fetch a cached weather data for the device location from the storage
       const cacheKey = `coords:${latitude.toFixed(4)},${longitude.toFixed(4)}`;
       const cached = await getCached<WeatherData>(cacheKey);
       if (cached) {

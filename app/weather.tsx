@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
@@ -27,7 +27,7 @@ export default function WeatherScreen() {
 
     // Allows to properly refetch weather data in fahrenheit units for the last search location
     if (lastFetchSource === 'city') {
-      fetchWeather();
+      fetchWeather(true);
     } else if (lastFetchSource === 'location') {
       fetchWeatherForCurrentLocation();
     }
@@ -35,6 +35,17 @@ export default function WeatherScreen() {
 
   return (
     <View style={styles.container}>
+
+      {/* Refresh header button that enforces fetching weather data from API */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={() => fetchWeather(true)} style={styles.refetchButton}>
+              <MaterialCommunityIcons name="refresh" size={24} style={styles.refetchIcon} />
+            </Pressable>
+          ),
+        }}
+      />
 
       {/* Location button */}
       <Pressable
@@ -50,7 +61,7 @@ export default function WeatherScreen() {
         <WeatherSearch
           city={city}
           setCity={setCity}
-          onSubmit={fetchWeather}
+          onSubmit={() => fetchWeather()}
           useFahrenheit={useFahrenheit}
           setUseFahrenheit={setUseFahrenheit}
         />
@@ -64,8 +75,17 @@ export default function WeatherScreen() {
       {/* Weather data displayed here */}
       {weather && 
         <View style={styles.weatherContainer}>
-          <CurrentWeather weather={weather} useFahrenheit={useFahrenheit} />
-          
+          {/* Use can scroll weather data view to enforce fetching weather from API */}
+          <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => fetchWeather(true)}
+            />}
+          >
+            <CurrentWeather weather={weather} useFahrenheit={useFahrenheit} />
+          </ScrollView>
+            
           <View style={styles.forecastSticky}>
             <ForecastList forecast={weather.forecast} useFahrenheit={useFahrenheit} />
           </View>
@@ -76,6 +96,12 @@ export default function WeatherScreen() {
 }
 
 const styles = StyleSheet.create({
+  refetchButton: {
+    marginRight: 16
+  },
+  refetchIcon: {
+    color: "#1e90ff"
+  },
   container: {
     flex: 1,
     paddingTop: 80,
