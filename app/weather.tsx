@@ -6,6 +6,7 @@ import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 
 export default function WeatherScreen() {
   const {
@@ -21,6 +22,8 @@ export default function WeatherScreen() {
     lastFetchSource,
   } = useWeather();
 
+  const { history, clearHistory } = useSearchHistory();
+
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
   useEffect(() => {
     if (!weather) return;
@@ -32,6 +35,13 @@ export default function WeatherScreen() {
       fetchWeatherForCurrentLocation();
     }
   }, [useFahrenheit]);
+
+  const handleSelectSearchedCity = (searchedCity: string) => {
+    console.log("history drowdown element clicked") 
+    console.log(searchedCity) 
+    setCity(searchedCity);
+    fetchWeather();
+  }
 
   return (
     <View style={styles.container}>
@@ -64,6 +74,9 @@ export default function WeatherScreen() {
           onSubmit={() => fetchWeather()}
           useFahrenheit={useFahrenheit}
           setUseFahrenheit={setUseFahrenheit}
+          history={history}
+          onSelectHistory={handleSelectSearchedCity}
+          clearHistory={clearHistory}
         />
       </View>
       {loading && <ActivityIndicator size="large" />}

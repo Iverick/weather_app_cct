@@ -46,6 +46,9 @@ export function useWeather() {
     console.log("forced to fetch from API: ")
     console.log(forceAPICall)
 
+    console.log("city string value: ")
+    console.log(city)
+
     try {
       if (!city.trim()) {
         throw new Error("Please enter a city name.");
