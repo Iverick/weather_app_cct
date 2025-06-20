@@ -40,7 +40,7 @@ export default function WeatherScreen() {
     console.log("history drowdown element clicked") 
     console.log(searchedCity) 
     setCity(searchedCity);
-    fetchWeather();
+    fetchWeather(false, searchedCity);
   }
 
   return (

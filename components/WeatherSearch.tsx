@@ -36,7 +36,10 @@ export default function WeatherSearch({
           placeholder="Enter city"
           value={city}
           onChangeText={setCity}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            setCity("");
+            setIsFocused(true)
+          }}
         />
         <View style={styles.switchContainer}>
           <Text style={styles.celsiusText}>°C</Text>
@@ -58,9 +61,9 @@ export default function WeatherSearch({
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPressIn={() => {
-                  onSelectHistory(item);
+              onPressIn={() => {
                   setIsFocused(false);
+                  onSelectHistory(item);
                 }}
                 style={styles.dropdownItem}
               >

@@ -37,7 +37,7 @@ export function useWeather() {
   /*
    * Method fetches weather data for the set city value
    */
-  const fetchWeather = async (forceAPICall: boolean = false) => {
+  const fetchWeather = async (forceAPICall: boolean = false, overrideCity?: string) => {
     setLoading(true);
     setWeather(null);
     setError(null);
@@ -46,17 +46,19 @@ export function useWeather() {
     console.log("forced to fetch from API: ")
     console.log(forceAPICall)
 
-    console.log("city string value: ")
-    console.log(city)
-
     try {
-      if (!city.trim()) {
+      const queryCity = overrideCity ?? city;
+
+      console.log("city string value inside useWeather: ")
+      console.log(queryCity)
+
+      if (!queryCity.trim()) {
         throw new Error("Please enter a city name.");
       }
       
       // First, try to fetch a cached weather data for the city from the storage
       // TODO: perhaps cacheKey should be more unique and include coordinates
-      const cacheKey = `city:${city.trim().toLowerCase()}`;
+      const cacheKey = `city:${queryCity.trim().toLowerCase()}`;
       if (!forceAPICall) {
         const cachedWeather = await getCached<WeatherData>(cacheKey);
         if (cachedWeather) {
@@ -67,12 +69,12 @@ export function useWeather() {
       }
 
       // Use helper method to get geo data for the provided city string
-      const { latitude, longitude, name, country } = await fetchCityCoordinates(city);
+      const { latitude, longitude, name, country } = await fetchCityCoordinates(queryCity);
 
       await fetchAndParseWeather(latitude, longitude, `${name}, ${country}`, cacheKey);
 
       // After the fetching data, push city to the AsyncStorage history vault
-      await addToHistory(city);
+      await addToHistory(queryCity);
       // TODO: For debug - remove later
       console.log("added to history now");
       // console.log(await history);
