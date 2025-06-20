@@ -22,7 +22,7 @@ export default function WeatherScreen() {
     lastFetchSource,
   } = useWeather();
 
-  const { history, clearHistory } = useSearchHistory();
+  const { history, addToHistory, clearHistory } = useSearchHistory();
 
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
   useEffect(() => {
@@ -36,12 +36,34 @@ export default function WeatherScreen() {
     }
   }, [useFahrenheit]);
 
-  const handleSelectSearchedCity = (searchedCity: string) => {
+  /*
+   * Search weather for typed city value
+   */
+  const handleSearch = async (forceAPICall = false, overrideCity?: string) => {
+    // Override city value if it passed in arguments
+    const queryCity = overrideCity ?? city;
+    await fetchWeather(forceAPICall, queryCity);
+    // After the fetching data, push city to the AsyncStorage history vault
+    addToHistory(city);
+  };
+
+
+  /*
+   * Search weather for the city selected from the searched cities dropdown menu
+   */
+  const handleSelectHistory = async (searchedCity: string) => {
     console.log("history drowdown element clicked") 
     console.log(searchedCity) 
     setCity(searchedCity);
-    fetchWeather(false, searchedCity);
+    await handleSearch(false, searchedCity);
   }
+
+  /*
+   * Fetch weather for the device location
+   */
+  const handleUseLocation = async () => {
+    await fetchWeatherForCurrentLocation();
+  };
 
   return (
     <View style={styles.container}>
@@ -50,7 +72,7 @@ export default function WeatherScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={() => fetchWeather(true)} style={styles.refetchButton}>
+            <Pressable onPress={() => handleSearch(true)} style={styles.refetchButton}>
               <MaterialCommunityIcons name="refresh" size={24} style={styles.refetchIcon} />
             </Pressable>
           ),
@@ -59,7 +81,7 @@ export default function WeatherScreen() {
 
       {/* Location button */}
       <Pressable
-        onPress={fetchWeatherForCurrentLocation}
+        onPress={handleUseLocation}
         style={styles.locationButton}
       >
         <MaterialCommunityIcons name="home-map-marker" size={28} color="#1e90ff" />
@@ -71,11 +93,11 @@ export default function WeatherScreen() {
         <WeatherSearch
           city={city}
           setCity={setCity}
-          onSubmit={() => fetchWeather()}
+          onSubmit={() => handleSearch()}
           useFahrenheit={useFahrenheit}
           setUseFahrenheit={setUseFahrenheit}
           history={history}
-          onSelectHistory={handleSelectSearchedCity}
+          onSelectHistory={handleSelectHistory }
           clearHistory={clearHistory}
         />
       </View>
@@ -90,11 +112,12 @@ export default function WeatherScreen() {
         <View style={styles.weatherContainer}>
           {/* Use can scroll weather data view to enforce fetching weather from API */}
           <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={loading}
-              onRefresh={() => fetchWeather(true)}
-            />}
+            refreshControl={
+              <RefreshControl
+                refreshing={loading}
+                onRefresh={() => handleSearch(true)}
+              />
+            }
           >
             <CurrentWeather weather={weather} useFahrenheit={useFahrenheit} />
           </ScrollView>

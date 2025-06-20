@@ -2,7 +2,6 @@ import { useState } from 'react';
 import * as Location from 'expo-location';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { fetchCityCoordinates } from '@/utils/geocoding';
-import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { getCached, setCached } from '@/utils/weatherCache';
 
 export interface ForecastDay {
@@ -32,8 +31,6 @@ export function useWeather() {
   const [useFahrenheit, setUseFahrenheit] = useState(false);
   const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
 
-  const { addToHistory, history } = useSearchHistory();
-  
   /*
    * Method fetches weather data for the set city value
    */
@@ -72,12 +69,6 @@ export function useWeather() {
       const { latitude, longitude, name, country } = await fetchCityCoordinates(queryCity);
 
       await fetchAndParseWeather(latitude, longitude, `${name}, ${country}`, cacheKey);
-
-      // After the fetching data, push city to the AsyncStorage history vault
-      await addToHistory(queryCity);
-      // TODO: For debug - remove later
-      console.log("added to history now");
-      // console.log(await history);
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -118,9 +109,6 @@ export function useWeather() {
       //       instead of putting "Current location" string.
       //       Requires too much hustle to get it done at this point though.
       await fetchAndParseWeather(latitude, longitude, "Current location", cacheKey);
-
-      // After the fetching data, push current location to the AsyncStorage history vault
-      await addToHistory("Current location");
     } catch (err: any) {
       setError(err.message);
     } finally {
