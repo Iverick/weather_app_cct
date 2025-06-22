@@ -2,6 +2,7 @@ export interface GeoLocation {
   latitude: number;
   longitude: number;
   name: string;
+  admin1: string;
   country: string;
 }
 
@@ -19,7 +20,24 @@ export async function fetchCityCoordinates(city: string): Promise<GeoLocation> {
   }
 
   // Get required values from the response data and return them
-  const { latitude, longitude, country, name } = data.results[0];
+  console.log("geocoding fetched data");
+  console.log(data);
 
-  return { latitude, longitude, name, country };
+  const { latitude, longitude, country, admin1, name } = data.results[0];
+
+  return { latitude, longitude, country, admin1, name };
+}
+
+export async function fetchCitiesList(queryCity: string): Promise<GeoLocation[]> {
+  const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(queryCity)}&count=6`;
+  const response = await fetch(geocodingUrl);
+  const data = await response.json();
+
+  return (data.results ?? []).map((r: any) => ({
+    name: r.name,
+    admin1: r.admin1,
+    country: r.country,
+    latitude: r.latitude,
+    longitude: r.longitude,
+  }));
 }

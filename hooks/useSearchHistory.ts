@@ -14,7 +14,10 @@ export function useSearchHistory() {
   }, []);
 
   // log for debugging
-  useEffect(() => { console.log(history) }, [history]);
+  useEffect(() => { 
+    console.log("18. useSearchHistory. history log")
+    console.log(history)
+  }, [history]);
 
   /*
    * Function finds AsyncStorage by STORAGE_KEY, pases output data 
@@ -45,7 +48,7 @@ export function useSearchHistory() {
   const clearHistory = async () => {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setHistory([]);
-    console.log("45. useSearchHistory. clearHistory");
+    console.log("51. useSearchHistory. clearHistory");
     console.log(history);
     console.log(await AsyncStorage.getItem(STORAGE_KEY));
   }

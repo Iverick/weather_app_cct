@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { fetchCityCoordinates } from '@/utils/geocoding';
@@ -21,18 +21,36 @@ export interface WeatherData {
   forecast: ForecastDay[];
 }
 
+export interface CityLocation {
+  name: string;
+  country: string;
+  admin1?: string;
+  latitude: number;
+  longitude: number;
+}
+
 type Source = 'city' | 'location' | null;
 
 export function useWeather() {
   const [city, setCity] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<CityLocation | null>(null);
   const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(false);
   const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
 
-  /*
-   * Method fetches weather data for the set city value
+  useEffect(() => {
+    console.log("41. useWeather. CityLocation set")
+    console.log(selectedLocation)
+  }, [selectedLocation])
+
+  /**
+   * Fetch weather by coordinates and a display label.
+   * @param latitude
+   * @param longitude
+   * @param label   e.g. "Dublin, Leinster, Ireland"
+   * @param forceAPICall  skip cache if true
    */
   const fetchWeather = async (forceAPICall: boolean = false, overrideCity?: string) => {
     setLoading(true);
@@ -127,6 +145,8 @@ export function useWeather() {
     useFahrenheit,
     setUseFahrenheit,
     lastFetchSource,
+    selectedLocation,
+    setSelectedLocation,
   };
 
   /*

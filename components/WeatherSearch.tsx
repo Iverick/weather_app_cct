@@ -1,6 +1,7 @@
-import { useSearchHistory } from '@/hooks/useSearchHistory';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
+import { fetchCitiesList, GeoLocation } from '@/utils/geocoding';
+import { CityLocation } from '@/hooks/useWeather';
 
 interface Props {
   city: string;
@@ -11,6 +12,7 @@ interface Props {
   history: string[];
   onSelectHistory: (city: string) => void;
   clearHistory: () => void;
+  setSelectedLocation: (coords: CityLocation | null) => void;
 }
 
 // Displays weather search field and button inside container
@@ -23,10 +25,29 @@ export default function WeatherSearch({
   history,
   onSelectHistory,
   clearHistory,
+  setSelectedLocation,
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
+  const [suggestions, setSuggestions] = useState<GeoLocation[]>([]);
 
-  const showSuggestions = isFocused && !(city.length) && history.length > 0;
+  useEffect(() => {
+    if (city.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    // Use timer here to prevent an API call immediately after detecting an added char to city state variable
+    const handler = setTimeout(async () => {
+      const matches = await fetchCitiesList(city);
+      console.log("fetched matches");
+      console.log(matches);
+      setSuggestions(matches);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [city]);
+
+  const showSuggestions = isFocused && (suggestions.length > 0 || history.length > 0);
   
   return(
     <View style={styles.wrapper}>
@@ -37,12 +58,12 @@ export default function WeatherSearch({
           value={city}
           onChangeText={setCity}
           onFocus={() => {
-            setCity("");
+            setSelectedLocation(null);
             setIsFocused(true)
           }}
           // Set onBlur delay here to make sure child onPress will always run 
           onBlur={() => setTimeout(() => {
-            setIsFocused(false)}, 100)
+            setIsFocused(false)}, 200)
           }
         />
         <View style={styles.switchContainer}>
@@ -60,25 +81,54 @@ export default function WeatherSearch({
 
       {showSuggestions && (
         <View style={styles.dropdown}>
-          <FlatList
-            data={history}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-              onPressIn={() => {
+          {suggestions.length > 0
+          // This block displays a list of suggested location for typed city string fetched from geocoding API
+          ? <FlatList
+              data={suggestions}
+              keyExtractor={(item) => `${item.latitude}-${item.longitude}`}
+              renderItem={({ item: location }) => (
+                <TouchableOpacity
+                  onPressIn={() => {
+                  console.log("selected city");
+                  console.log(location);
+                  setSelectedLocation({
+                    name: location.name,
+                    country: location.country,
+                    admin1: location.admin1,
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                  });
                   setIsFocused(false);
-                  onSelectHistory(item);
                 }}
                 style={styles.dropdownItem}
-              >
-                <Text>{item}</Text>
-              </TouchableOpacity>
-            )}
-          />
-          
-          <Pressable onPress={clearHistory} style={styles.clearButton}>
-            <Text style={styles.clearText}>Clear search history</Text>
-          </Pressable>
+                >
+                  <Text>{location.name}, {location.admin1}, {location.country}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          // This block displays a list of stored cities searches in history storage
+          : (<>
+              <FlatList
+                data={history}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPressIn={() => {
+                      setIsFocused(false);
+                      onSelectHistory(item);
+                    }}
+                    style={styles.dropdownItem}
+                  >
+                    <Text>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+              
+              <Pressable onPress={clearHistory} style={styles.clearButton}>
+                <Text style={styles.clearText}>Clear search history</Text>
+              </Pressable>
+            </>)
+          }
         </View>
       )}
     </View>
@@ -133,7 +183,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     marginTop: 2,
-    maxHeight: 150,
+    maxHeight: 250,
   },
   dropdownItem: {
     padding: 10,

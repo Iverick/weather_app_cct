@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
@@ -20,6 +20,8 @@ export default function WeatherScreen() {
     useFahrenheit,
     setUseFahrenheit,
     lastFetchSource,
+    selectedLocation,
+    setSelectedLocation,
   } = useWeather();
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
@@ -99,6 +101,7 @@ export default function WeatherScreen() {
           history={history}
           onSelectHistory={handleSelectHistory }
           clearHistory={clearHistory}
+          setSelectedLocation={setSelectedLocation}
         />
       </View>
       {loading && <ActivityIndicator size="large" />}
