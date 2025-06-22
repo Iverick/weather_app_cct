@@ -40,6 +40,10 @@ export default function WeatherSearch({
             setCity("");
             setIsFocused(true)
           }}
+          // Set onBlur delay here to make sure child onPress will always run 
+          onBlur={() => setTimeout(() => {
+            setIsFocused(false)}, 100)
+          }
         />
         <View style={styles.switchContainer}>
           <Text style={styles.celsiusText}>°C</Text>
