@@ -28,6 +28,13 @@ export async function fetchCityCoordinates(city: string): Promise<GeoLocation> {
   return { latitude, longitude, country, admin1, name };
 }
 
+/**
+ * Fetches up to six matching locations for a given city name from the Open-Meteo Geocoding API.
+ *
+ * @param queryCity - The (partial) city name entered by the user.
+ * @returns A promise resolving to an array of GeoLocation objects, each containing 
+ *          the place name, administrative region, country, and coordinates.
+ */
 export async function fetchCitiesList(queryCity: string): Promise<GeoLocation[]> {
   const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(queryCity)}&count=6`;
   const response = await fetch(geocodingUrl);

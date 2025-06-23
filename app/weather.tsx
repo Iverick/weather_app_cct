@@ -56,7 +56,7 @@ export default function WeatherScreen() {
       ? `${name}, ${admin1}, ${country}`
       : `${name}, ${country}`;
 
-    await fetchWeather(latitude, longitude, label, forceAPICall);
+    await fetchWeather(latitude, longitude, label);
     // After the fetching data, push city to the AsyncStorage history vault
     addToHistory(label);
   };
@@ -64,14 +64,17 @@ export default function WeatherScreen() {
   /*
    * Search weather for the city selected from the searched cities dropdown menu
    */
-  const handleSelectHistory = async (searchedCity: string) => {
+  const handleSelectHistory = async (searchedCity: string, force = false) => {
     console.log("67. weather. history drowdown element clicked") 
     console.log(searchedCity)
     console.log(selectedLocation)
     // First try to get weather data from cache
     setCity(searchedCity);
-    if (await fetchCachedWeather(searchedCity)) {
-      return
+
+    // Try to get from cache unless it's force to make an API call
+    if (!force) {
+      const res = await fetchCachedWeather(searchedCity);
+      if (res) return;
     }
 
     // Have to remove admin1 from the searchedCity label due to geocoding API schema
@@ -83,6 +86,7 @@ export default function WeatherScreen() {
         : searchedCity; 
 
     // If weather not in cache, get geocode data and fetch weather data by coords
+    // Do this because useSearchHistory hook don't store city coordinates in the AsyncStorage
     const { latitude, longitude } = await fetchCityCoordinates(queryCity);
 
     if (!location) {
@@ -108,7 +112,7 @@ export default function WeatherScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={() => handleSearch(true)} style={styles.refetchButton}>
+            <Pressable onPress={() => handleSelectHistory(city, true)} style={styles.refetchButton}>
               <MaterialCommunityIcons name="refresh" size={24} style={styles.refetchIcon} />
             </Pressable>
           ),
@@ -153,7 +157,7 @@ export default function WeatherScreen() {
             refreshControl={
               <RefreshControl
                 refreshing={loading}
-                onRefresh={() => handleSearch(true)}
+                onRefresh={() => handleSelectHistory(city, true)}
               />
             }
           >

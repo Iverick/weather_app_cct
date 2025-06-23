@@ -50,21 +50,16 @@ export function useWeather() {
    * @param latitude
    * @param longitude
    * @param label   e.g. "Dublin, Leinster, Ireland"
-   * @param forceAPICall  skip cache if true
    */
   const fetchWeather = async (
     latitude: number,
     longitude: number,
     label: string,
-    forceAPICall = false
   ) => {
     setLoading(true);
     setWeather(null);
     setError(null);
     setLastFetchSource('city');
-
-    console.log("66. useWeather. forced to fetch from API: ")
-    console.log(forceAPICall)
 
     console.log("68. useWeather. fetching weather for: ")
     console.log(label)
