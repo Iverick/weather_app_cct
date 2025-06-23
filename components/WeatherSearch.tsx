@@ -12,6 +12,7 @@ interface Props {
   history: string[];
   onSelectHistory: (city: string) => void;
   clearHistory: () => void;
+  selectedLocation: CityLocation | null;
   setSelectedLocation: (coords: CityLocation | null) => void;
 }
 
@@ -25,6 +26,7 @@ export default function WeatherSearch({
   history,
   onSelectHistory,
   clearHistory,
+  selectedLocation,
   setSelectedLocation,
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
@@ -39,8 +41,8 @@ export default function WeatherSearch({
     // Use timer here to prevent an API call immediately after detecting an added char to city state variable
     const handler = setTimeout(async () => {
       const matches = await fetchCitiesList(city);
-      console.log("fetched matches");
-      console.log(matches);
+      // console.log("42. WeatherSearch. fetched matches");
+      // console.log(matches);
       setSuggestions(matches);
     }, 500);
 
@@ -98,6 +100,7 @@ export default function WeatherSearch({
                     latitude: location.latitude,
                     longitude: location.longitude,
                   });
+                  setCity(location.name);
                   setIsFocused(false);
                 }}
                 style={styles.dropdownItem}
@@ -119,7 +122,9 @@ export default function WeatherSearch({
                     }}
                     style={styles.dropdownItem}
                   >
-                    <Text>{item}</Text>
+                    <Text>
+                      {item}
+                    </Text>
                   </TouchableOpacity>
                 )}
               />

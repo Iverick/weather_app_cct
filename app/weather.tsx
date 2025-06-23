@@ -7,6 +7,7 @@ import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { fetchCityCoordinates } from '@/utils/geocoding';
 
 export default function WeatherScreen() {
   const {
@@ -15,7 +16,9 @@ export default function WeatherScreen() {
     setCity,
     loading,
     error,
+    setError,
     fetchWeather,
+    fetchCachedWeather,
     fetchWeatherForCurrentLocation,
     useFahrenheit,
     setUseFahrenheit,
@@ -26,38 +29,69 @@ export default function WeatherScreen() {
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
-  // Use effect hook to automatically refetch weather data if the unit system switch was toggled
-  useEffect(() => {
-    if (!weather) return;
+  // TODO: useFahrenheit needs to be fixed
+  // // Use effect hook to automatically refetch weather data if the unit system switch was toggled
+  // useEffect(() => {
+  //   if (!weather) return;
 
-    // Allows to properly refetch weather data in fahrenheit units for the last search location
-    if (lastFetchSource === 'city') {
-      fetchWeather(true);
-    } else if (lastFetchSource === 'location') {
-      fetchWeatherForCurrentLocation();
-    }
-  }, [useFahrenheit]);
+  //   // Allows to properly refetch weather data in fahrenheit units for the last search location
+  //   if (lastFetchSource === 'city') {
+  //     handleSearch(true);
+  //   } else if (lastFetchSource === 'location') {
+  //     fetchWeatherForCurrentLocation();
+  //   }
+  // }, [useFahrenheit]);
 
   /*
    * Search weather for typed city value
    */
-  const handleSearch = async (forceAPICall = false, overrideCity?: string) => {
-    // Override city value if it passed in arguments
-    const queryCity = overrideCity ?? city;
-    await fetchWeather(forceAPICall, queryCity);
-    // After the fetching data, push city to the AsyncStorage history vault
-    addToHistory(city);
-  };
+  const handleSearch = async (forceAPICall = false) => {
+    if (!selectedLocation) {
+      setError("Please pick a city from the list first.");
+      return;
+    }
 
+    const { name, admin1, country, latitude, longitude } = selectedLocation;
+    const label = admin1
+      ? `${name}, ${admin1}, ${country}`
+      : `${name}, ${country}`;
+
+    await fetchWeather(latitude, longitude, label, forceAPICall);
+    // After the fetching data, push city to the AsyncStorage history vault
+    addToHistory(label);
+  };
 
   /*
    * Search weather for the city selected from the searched cities dropdown menu
    */
   const handleSelectHistory = async (searchedCity: string) => {
-    console.log("history drowdown element clicked") 
-    console.log(searchedCity) 
+    console.log("67. weather. history drowdown element clicked") 
+    console.log(searchedCity)
+    console.log(selectedLocation)
+    // First try to get weather data from cache
     setCity(searchedCity);
-    await handleSearch(false, searchedCity);
+    if (await fetchCachedWeather(searchedCity)) {
+      return
+    }
+
+    // Have to remove admin1 from the searchedCity label due to geocoding API schema
+    // parts = [ name, admin1, country ]
+    const parts = searchedCity.split(',').map(s => s.trim());
+    const queryCity =
+      parts.length === 3
+        ? `${parts[0]},${parts[2]}`
+        : searchedCity; 
+
+    // If weather not in cache, get geocode data and fetch weather data by coords
+    const { latitude, longitude } = await fetchCityCoordinates(queryCity);
+
+    if (!location) {
+      setError(`Could not geocode stored city: ${searchedCity}`);
+      return;
+    }
+
+    await fetchWeather(latitude, longitude, searchedCity);
+    addToHistory(searchedCity);
   }
 
   /*
@@ -95,12 +129,13 @@ export default function WeatherScreen() {
         <WeatherSearch
           city={city}
           setCity={setCity}
-          onSubmit={() => handleSearch()}
+          onSubmit={handleSearch}
           useFahrenheit={useFahrenheit}
           setUseFahrenheit={setUseFahrenheit}
           history={history}
-          onSelectHistory={handleSelectHistory }
+          onSelectHistory={handleSelectHistory}
           clearHistory={clearHistory}
+          selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
         />
       </View>

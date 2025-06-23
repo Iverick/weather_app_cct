@@ -4,6 +4,8 @@ const PREFIX = "weather_cache";
 // 24 hours in ms
 // Will be used to remove old cached data
 const TTL = 24 * 60 * 60 * 1000;
+// TODO: for testing
+// const TTL = 1;
 
 type CacheEntry<T> = {
   timestamp: number;

@@ -23,8 +23,8 @@ export interface WeatherData {
 
 export interface CityLocation {
   name: string;
-  country: string;
   admin1?: string;
+  country: string;
   latitude: number;
   longitude: number;
 }
@@ -41,7 +41,7 @@ export function useWeather() {
   const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
 
   useEffect(() => {
-    console.log("41. useWeather. CityLocation set")
+    console.log("44. useWeather. CityLocation set")
     console.log(selectedLocation)
   }, [selectedLocation])
 
@@ -52,46 +52,53 @@ export function useWeather() {
    * @param label   e.g. "Dublin, Leinster, Ireland"
    * @param forceAPICall  skip cache if true
    */
-  const fetchWeather = async (forceAPICall: boolean = false, overrideCity?: string) => {
+  const fetchWeather = async (
+    latitude: number,
+    longitude: number,
+    label: string,
+    forceAPICall = false
+  ) => {
     setLoading(true);
     setWeather(null);
     setError(null);
     setLastFetchSource('city');
 
-    console.log("forced to fetch from API: ")
+    console.log("66. useWeather. forced to fetch from API: ")
     console.log(forceAPICall)
 
+    console.log("68. useWeather. fetching weather for: ")
+    console.log(label)
+
     try {
-      const queryCity = overrideCity ?? city;
-
-      console.log("city string value inside useWeather: ")
-      console.log(queryCity)
-
-      if (!queryCity.trim()) {
-        throw new Error("Please enter a city name.");
-      }
+      // TODO: Remove it?
+      // if (!queryCity.trim()) {
+      //   throw new Error("Please enter a city name.");
+      // }
       
       // First, try to fetch a cached weather data for the city from the storage
-      // TODO: perhaps cacheKey should be more unique and include coordinates
-      const cacheKey = `city:${queryCity.trim().toLowerCase()}`;
-      if (!forceAPICall) {
-        const cachedWeather = await getCached<WeatherData>(cacheKey);
-        if (cachedWeather) {
-          // If weather found in cache, set cached weather data and early terminate the function execution
-          setWeather(cachedWeather);
-          return;
-        }
-      }
+      const cacheKey = `city:${label.toLowerCase()}`;
 
-      // Use helper method to get geo data for the provided city string
-      const { latitude, longitude, name, country } = await fetchCityCoordinates(queryCity);
-
-      await fetchAndParseWeather(latitude, longitude, `${name}, ${country}`, cacheKey);
+      await fetchAndParseWeather(latitude, longitude, `${label}`, cacheKey);
     } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
     }
+  }
+
+  /**
+   * Try to load weather data from cache by label. 
+   * If found, set state and return true; otherwise return false.
+   * @param label  e.g. "Dublin, Leinster, Ireland"
+   */
+  const fetchCachedWeather = async (label: string): Promise<boolean> => {
+    const cacheKey = `city:${label.toLowerCase()}`;
+    const cachedWeather = await getCached<WeatherData>(cacheKey);
+    if (cachedWeather) {
+      setWeather(cachedWeather);
+      return true;
+    }
+    return false;
   }
   
   /*
@@ -119,6 +126,7 @@ export function useWeather() {
       const cacheKey = `coords:${latitude.toFixed(4)},${longitude.toFixed(4)}`;
       const cached = await getCached<WeatherData>(cacheKey);
       if (cached) {
+        console.log("122. useWeather. fetching weather data from cache");
         setWeather(cached);
         return;
       }
@@ -134,26 +142,11 @@ export function useWeather() {
     }
   }
 
-  return {
-    weather,
-    city,
-    setCity,
-    loading,
-    error,
-    fetchWeather,
-    fetchWeatherForCurrentLocation,
-    useFahrenheit,
-    setUseFahrenheit,
-    lastFetchSource,
-    selectedLocation,
-    setSelectedLocation,
-  };
-
   /*
    * Helper function that queries and Open Meteo API endpoint, parses response data
    * and populates weather state object with proper values
    */
-  async function fetchAndParseWeather (latitude: number, longitude: number, label: string, cacheKey: string) {
+  async function fetchAndParseWeather(latitude: number, longitude: number, label: string, cacheKey: string) {
     // Create an API URL and query it to get weatherData response
     const url = buildWeatherUrl({ latitude, longitude, useFahrenheit });
     const weatherRes = await fetch(url);
@@ -198,4 +191,21 @@ export function useWeather() {
     // Cache weather data
     await setCached(cacheKey, result);
   }
+
+  return {
+    weather,
+    city,
+    setCity,
+    loading,
+    error,
+    setError,
+    fetchWeather,
+    fetchCachedWeather,
+    fetchWeatherForCurrentLocation,
+    useFahrenheit,
+    setUseFahrenheit,
+    lastFetchSource,
+    selectedLocation,
+    setSelectedLocation,
+  };
 }
