@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
@@ -113,9 +113,21 @@ export default function WeatherScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={() => handleSelectHistory(city, true)} style={styles.refetchButton}>
-              <MaterialCommunityIcons name="refresh" size={24} style={styles.refetchIcon} />
-            </Pressable>
+            <View style={styles.headerContainer}>
+              {selectedLocation && (
+                <View style={styles.unitsSwitchContainer}>
+                  <Text style={styles.celsiusText}>°C</Text>
+                  <Switch
+                    value={useFahrenheit}
+                    onValueChange={setUseFahrenheit}
+                  />
+                  <Text style={styles.fahrenheitText}>°F</Text>
+                </View>
+              )}
+              <Pressable onPress={() => handleSearch()} hitSlop={8}>
+                <MaterialCommunityIcons name="refresh" size={24} style={styles.refetchIcon} />
+              </Pressable>
+            </View>
           ),
         }}
       />
@@ -175,6 +187,26 @@ export default function WeatherScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 12
+  },
+  unitsSwitchContainer: { 
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 12
+  },
+  celsiusText: {
+    marginRight: 4,
+    color: "#1e90ff",
+    fontSize: 17
+  },
+  fahrenheitText: {
+    marginLeft: 4,
+    color: "#1e90ff",
+    fontSize: 17
+  },
   refetchButton: {
     marginRight: 16
   },

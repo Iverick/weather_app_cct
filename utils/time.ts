@@ -7,6 +7,7 @@ export function formatCurrentTime(rawTime: string): string {
 
   const label = isToday 
   ? `Today, ${weatherDate.toLocaleString(undefined, {
+      weekday: 'short',
       day: 'numeric',
       month: 'short',
     })}` 

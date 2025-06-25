@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { fetchCitiesList, GeoLocation } from '@/utils/geocoding';
 import { CityLocation } from '@/hooks/useWeather';
 
@@ -49,7 +50,12 @@ export default function WeatherSearch({
     return () => clearTimeout(handler);
   }, [city]);
 
-  const showSuggestions = isFocused && (suggestions.length > 0 || history.length > 0);
+  const showSuggestions = isFocused && (
+    suggestions.length > 0 || 
+    // Show history items inside suggestions dropdown if city string is less than 3 chars
+    (city.length < 3 && history.length > 0)
+  );
+
   
   return(
     <View style={styles.wrapper}>
@@ -69,19 +75,12 @@ export default function WeatherSearch({
           }
         />
 
-        {selectedLocation && (
-          <View style={styles.switchContainer}>
-            <Text style={styles.celsiusText}>°C</Text>
-            <Switch
-              value={useFahrenheit}
-              onValueChange={setUseFahrenheit}
-            />
-            <Text style={styles.fahrenheitText}>°F</Text>
-          </View>
-        )}
-        
         <Pressable style={styles.searchButton} onPress={onSubmit}>
-          <Text style={styles.searchButtonText}>Search</Text>
+          <MaterialCommunityIcons
+            name="magnify"
+            size={21}
+            style={styles.searchIcon}
+          />
         </Pressable>
       </View>
       
@@ -92,6 +91,7 @@ export default function WeatherSearch({
           ? <FlatList
               data={suggestions}
               keyExtractor={(item) => `${item.latitude}-${item.longitude}`}
+              keyboardShouldPersistTaps="always"
               renderItem={({ item: location }) => (
                 <TouchableOpacity
                   onPressIn={() => {
@@ -118,6 +118,7 @@ export default function WeatherSearch({
               <FlatList
                 data={history}
                 keyExtractor={(item) => item}
+                keyboardShouldPersistTaps="always"
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     onPressIn={() => {
@@ -168,10 +169,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   celsiusText: {
-    marginRight: 8,
+    marginRight: 5,
   },
   fahrenheitText: {
-    marginLeft: 8,
+    marginLeft: 5,
   },
   searchButton: {
     backgroundColor: "#1e90ff",
@@ -180,10 +181,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: "center",
   },
-  searchButtonText: {
+  searchIcon: {
     color: "#fff",
-    fontWeight: '600',
-    fontSize: 16,
   },
   // Dropdown feature styles
   dropdown: {
