@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
+import NetInfo from '@react-native-community/netinfo';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { fetchCityCoordinates } from '@/utils/geocoding';
 import { getCached, setCached } from '@/utils/weatherCache';
@@ -39,11 +40,20 @@ export function useWeather() {
   const [error, setError] = useState<string | null>(null);
   const [useFahrenheit, setUseFahrenheit] = useState(false);
   const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(true);
 
   useEffect(() => {
     console.log("44. useWeather. CityLocation set")
     console.log(selectedLocation)
-  }, [selectedLocation])
+  }, [selectedLocation]);
+
+  // Subscribe to connectivity changes
+  useEffect(() => {
+    const sub = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected ?? false);
+    });
+    return () => sub();
+  }, []);
 
   /**
    * Fetch weather by coordinates and a display label.
@@ -63,6 +73,13 @@ export function useWeather() {
 
     console.log("68. useWeather. fetching weather for: ")
     console.log(label)
+
+    // Notify the user if his device is offline
+    if (!isConnected) {
+      setError("No network connection.");
+      setLoading(false);
+      return;
+    }
 
     try {
       // First, try to fetch a cached weather data for the city from the storage
