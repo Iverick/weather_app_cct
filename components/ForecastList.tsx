@@ -45,9 +45,13 @@ export default function ForecastList({ forecast, useFahrenheit }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
     marginRight: 10,
     alignItems: 'center',
     width: 80,

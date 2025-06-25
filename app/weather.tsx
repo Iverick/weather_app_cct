@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowPathIcon, HomeIcon } from 'react-native-heroicons/outline';
 import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
@@ -130,82 +131,86 @@ export default function WeatherScreen() {
   };
 
   return (
-    <View style={styles.container}>
-
-      {/* Refresh header button that enforces fetching weather data from API */}
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <View style={styles.headerContainer}>
-              {selectedLocation && (
-                <View style={styles.unitsSwitchContainer}>
-                  <Text style={styles.celsiusText}>°C</Text>
-                  <Switch
-                    value={useFahrenheit}
-                    onValueChange={setUseFahrenheit}
-                  />
-                  <Text style={styles.fahrenheitText}>°F</Text>
-                </View>
-              )}
-              <Pressable onPress={() => handleSearch()} hitSlop={8}>
-                <ArrowPathIcon size={24} color="#1e90ff" />
-              </Pressable>
-            </View>
-          ),
-        }}
-      />
-
-      {/* Location button */}
-      <Pressable
-        onPress={handleUseLocation}
-        style={styles.locationButton}
-      >
-        <HomeIcon size={28} color="#1e90ff" />
-      </Pressable>
-
-      <Stack.Screen options={{ title: 'Weather' }} />
-      <Text style={styles.title}>Search Weather by City</Text>
-      <View style={styles.searchForm}>
-        <WeatherSearch
-          city={city}
-          setCity={setCity}
-          onSubmit={handleSearch}
-          useFahrenheit={useFahrenheit}
-          setUseFahrenheit={setUseFahrenheit}
-          history={history}
-          onSelectHistory={handleSelectHistory}
-          clearHistory={clearHistory}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
+    <LinearGradient
+      colors={['#FFDEE9', '#B5FFFC']}
+      style={StyleSheet.absoluteFill}
+    >
+      <View style={styles.container}>
+        {/* Refresh header button that enforces fetching weather data from API */}
+        <Stack.Screen
+          options={{
+            headerRight: () => (
+              <View style={styles.headerContainer}>
+                {selectedLocation && (
+                  <View style={styles.unitsSwitchContainer}>
+                    <Text style={styles.celsiusText}>°C</Text>
+                    <Switch
+                      value={useFahrenheit}
+                      onValueChange={setUseFahrenheit}
+                    />
+                    <Text style={styles.fahrenheitText}>°F</Text>
+                  </View>
+                )}
+                <Pressable onPress={() => handleSearch()} hitSlop={8}>
+                  <ArrowPathIcon size={24} color="#40e0d0" />
+                </Pressable>
+              </View>
+            ),
+          }}
         />
-      </View>
-      {loading && <ActivityIndicator size="large" />}
-      {error && (
-        <Text style={styles.error}>
-          {error}
-        </Text>
-      )}
-      {/* Weather data displayed here */}
-      {weather && 
-        <View style={styles.weatherContainer}>
-          {/* Use can scroll weather data view to enforce fetching weather from API */}
-          <ScrollView
-            refreshControl={
-              <RefreshControl
-                refreshing={loading}
-                onRefresh={() => handleSelectHistory(city, true)}
-              />
-            }
-          >
-            <CurrentWeather weather={weather} useFahrenheit={useFahrenheit} />
-          </ScrollView>
-            
-          <View style={styles.forecastSticky}>
-            <ForecastList forecast={weather.forecast} useFahrenheit={useFahrenheit} />
-          </View>
+
+        {/* Location button */}
+        <Pressable
+          onPress={handleUseLocation}
+          style={styles.locationButton}
+        >
+          <HomeIcon size={28} color="#40e0d0" />
+        </Pressable>
+
+        <Stack.Screen options={{ title: 'Weather' }} />
+        <Text style={styles.title}>Enter City Name</Text>
+        <View style={styles.searchForm}>
+          <WeatherSearch
+            city={city}
+            setCity={setCity}
+            onSubmit={handleSearch}
+            useFahrenheit={useFahrenheit}
+            setUseFahrenheit={setUseFahrenheit}
+            history={history}
+            onSelectHistory={handleSelectHistory}
+            clearHistory={clearHistory}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+          />
         </View>
-      }
-    </View>
+        {loading && <ActivityIndicator size="large" />}
+        {error && (
+          <Text style={styles.error}>
+            {error}
+          </Text>
+        )}
+        {/* Weather data displayed here */}
+        {weather && 
+          <View style={styles.weatherContainer}>
+            {/* Use can scroll weather data view to enforce fetching weather from API */}
+            <ScrollView
+              refreshControl={
+                <RefreshControl
+                  refreshing={loading}
+                  onRefresh={() => handleSelectHistory(city, true)}
+                />
+              }
+            >
+              <CurrentWeather weather={weather} useFahrenheit={useFahrenheit} />
+            </ScrollView>
+              
+            <View style={styles.forecastSticky}>
+              <ForecastList forecast={weather.forecast} useFahrenheit={useFahrenheit} />
+            </View>
+          </View>
+        }
+      </View>
+    </LinearGradient>
   )
 }
 
@@ -222,19 +227,19 @@ const styles = StyleSheet.create({
   },
   celsiusText: {
     marginRight: 4,
-    color: "#1e90ff",
+    color: "#40e0d0",
     fontSize: 17
   },
   fahrenheitText: {
     marginLeft: 4,
-    color: "#1e90ff",
+    color: "#40e0d0",
     fontSize: 17
   },
   refetchButton: {
     marginRight: 16
   },
   refetchIcon: {
-    color: "#1e90ff"
+    color: "#40e0d0"
   },
   container: {
     flex: 1,
