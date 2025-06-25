@@ -31,12 +31,13 @@ export default function ForecastList({ forecast, useFahrenheit }: Props) {
           <Text style={styles.cardTemp}>
             {item.min}°{useFahrenheit ? "F" : "C"}
           </Text>
-          <MaterialCommunityIcons
-            name={getWeatherIconName(item.code)}
-            size={32}
-            style={styles.cardIcon}
-            color="#bfbfbf"
-          />
+          <View style={styles.cardIconWrapper}>
+            <MaterialCommunityIcons
+              name={getWeatherIconName(item.code)}
+              size={32}
+              color="#333"
+            />
+          </View>
         </View>
       )}
     />
@@ -57,16 +58,20 @@ const styles = StyleSheet.create({
     width: 80,
   },
   cardDate: {
+    fontFamily: "Montserrat-Bold",
     fontSize: 14,
-    fontWeight: 'bold',
     marginBottom: 5,
   },
   cardTemp: {
-    marginTop: 5,
+    fontFamily: "Montserrat-Regular",
     fontSize: 14,
+    marginTop: 5,
     textAlign: 'center',
   },
-  cardIcon: {
+  cardIconWrapper: {
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: 24,
+    padding: 8,
     marginTop: 10,
   },
 });

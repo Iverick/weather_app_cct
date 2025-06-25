@@ -132,7 +132,8 @@ export default function WeatherScreen() {
 
   return (
     <LinearGradient
-      colors={['#FFDEE9', '#B5FFFC']}
+      colors={['#FFFFFF', '#F9F2F4', '#E8F7F6']}
+      locations={[0, 0.4, 1]}
       style={StyleSheet.absoluteFill}
     >
       <View style={styles.container}>
@@ -245,7 +246,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 80,
     paddingHorizontal: 20,
-    backgroundColor: "#fff",
   },
   locationButton: {
     position: "absolute",
