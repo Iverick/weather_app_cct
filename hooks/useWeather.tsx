@@ -65,11 +65,6 @@ export function useWeather() {
     console.log(label)
 
     try {
-      // TODO: Remove it?
-      // if (!queryCity.trim()) {
-      //   throw new Error("Please enter a city name.");
-      // }
-      
       // First, try to fetch a cached weather data for the city from the storage
       const cacheKey = `city:${label.toLowerCase()}`;
 
@@ -89,6 +84,10 @@ export function useWeather() {
   const fetchCachedWeather = async (label: string): Promise<boolean> => {
     const cacheKey = `city:${label.toLowerCase()}`;
     const cachedWeather = await getCached<WeatherData>(cacheKey);
+    
+    console.log("93. fetchCachedWeather. Fetched cached weather data");
+    console.log(cachedWeather);
+
     if (cachedWeather) {
       setWeather(cachedWeather);
       return true;

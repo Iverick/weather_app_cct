@@ -30,24 +30,24 @@ export default function WeatherScreen() {
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
   // TODO: useFahrenheit needs to be fixed
-  // // Use effect hook to automatically refetch weather data if the unit system switch was toggled
-  // useEffect(() => {
-  //   if (!weather) return;
+  // Use effect hook to automatically refetch weather data if the unit system switch was toggled
+  useEffect(() => {
+    if (!weather) return;
 
-  //   // Allows to properly refetch weather data in fahrenheit units for the last search location
-  //   if (lastFetchSource === 'city') {
-  //     handleSearch(true);
-  //   } else if (lastFetchSource === 'location') {
-  //     fetchWeatherForCurrentLocation();
-  //   }
-  // }, [useFahrenheit]);
+    // Allows to properly refetch weather data in fahrenheit units for the last search location
+    if (lastFetchSource === 'city') {
+      handleSearch();
+    } else if (lastFetchSource === 'location') {
+      fetchWeatherForCurrentLocation();
+    }
+  }, [useFahrenheit]);
 
   /*
    * Search weather for typed city value
    */
-  const handleSearch = async (forceAPICall = false) => {
-    if (!selectedLocation) {
-      setError("Please pick a city from the list first.");
+  const handleSearch = async () => {
+    if (!selectedLocation || !city.trim()) {
+      setError("Please select a city first.");
       return;
     }
 
@@ -68,8 +68,9 @@ export default function WeatherScreen() {
     console.log("67. weather. history drowdown element clicked") 
     console.log(searchedCity)
     console.log(selectedLocation)
-    // First try to get weather data from cache
+
     setCity(searchedCity);
+    setError("");
 
     // Try to get from cache unless it's force to make an API call
     if (!force) {

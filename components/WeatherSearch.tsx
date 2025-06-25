@@ -68,19 +68,23 @@ export default function WeatherSearch({
             setIsFocused(false)}, 200)
           }
         />
-        <View style={styles.switchContainer}>
-          <Text style={styles.celsiusText}>°C</Text>
-          <Switch
-            value={useFahrenheit}
-            onValueChange={setUseFahrenheit}
-          />
-          <Text style={styles.fahrenheitText}>°F</Text>
-        </View>
+
+        {selectedLocation && (
+          <View style={styles.switchContainer}>
+            <Text style={styles.celsiusText}>°C</Text>
+            <Switch
+              value={useFahrenheit}
+              onValueChange={setUseFahrenheit}
+            />
+            <Text style={styles.fahrenheitText}>°F</Text>
+          </View>
+        )}
+        
         <Pressable style={styles.searchButton} onPress={onSubmit}>
           <Text style={styles.searchButtonText}>Search</Text>
         </Pressable>
       </View>
-
+      
       {showSuggestions && (
         <View style={styles.dropdown}>
           {suggestions.length > 0
