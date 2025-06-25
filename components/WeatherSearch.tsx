@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MagnifyingGlassIcon, TrashIcon } from 'react-native-heroicons/outline';
 import { fetchCitiesList, GeoLocation } from '@/utils/geocoding';
 import { CityLocation } from '@/hooks/useWeather';
 
@@ -22,12 +22,9 @@ export default function WeatherSearch({
   city,
   setCity,
   onSubmit,
-  useFahrenheit,
-  setUseFahrenheit,
   history,
   onSelectHistory,
   clearHistory,
-  selectedLocation,
   setSelectedLocation,
 }: Props) {
   const [isFocused, setIsFocused] = useState(false);
@@ -76,11 +73,7 @@ export default function WeatherSearch({
         />
 
         <Pressable style={styles.searchButton} onPress={onSubmit}>
-          <MaterialCommunityIcons
-            name="magnify"
-            size={21}
-            style={styles.searchIcon}
-          />
+          <MagnifyingGlassIcon size={21} color="#fff" />
         </Pressable>
       </View>
       
@@ -135,6 +128,7 @@ export default function WeatherSearch({
               />
               
               <Pressable onPress={clearHistory} style={styles.clearButton}>
+                <TrashIcon size={20} color="red" />
                 <Text style={styles.clearText}>Clear search history</Text>
               </Pressable>
             </>)
@@ -181,9 +175,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: "center",
   },
-  searchIcon: {
-    color: "#fff",
-  },
   // Dropdown feature styles
   dropdown: {
     backgroundColor: '#fafafa',
@@ -201,8 +192,12 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: 10,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    
   },
   clearText: {
+    marginLeft: 5,
     color: 'red',
     fontWeight: '600',
   },

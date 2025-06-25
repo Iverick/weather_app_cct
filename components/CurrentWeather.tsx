@@ -18,7 +18,7 @@ export default function CurrentWeather({ weather, useFahrenheit }: Props) {
         name={getWeatherIconName(weather.weathercode)}
         size={64}
         color="#bfbfbf"
-        />
+      />
       <Text style={styles.text}>
         {formatCurrentTime(weather.currentTime)}
       </Text>

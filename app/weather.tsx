@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Stack } from 'expo-router';
+import { ArrowPathIcon, HomeIcon } from 'react-native-heroicons/outline';
 import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { fetchCityCoordinates } from '@/utils/geocoding';
 
@@ -148,7 +148,7 @@ export default function WeatherScreen() {
                 </View>
               )}
               <Pressable onPress={() => handleSearch()} hitSlop={8}>
-                <MaterialCommunityIcons name="refresh" size={24} style={styles.refetchIcon} />
+                <ArrowPathIcon size={24} color="#1e90ff" />
               </Pressable>
             </View>
           ),
@@ -160,7 +160,7 @@ export default function WeatherScreen() {
         onPress={handleUseLocation}
         style={styles.locationButton}
       >
-        <MaterialCommunityIcons name="home-map-marker" size={28} color="#1e90ff" />
+        <HomeIcon size={28} color="#1e90ff" />
       </Pressable>
 
       <Stack.Screen options={{ title: 'Weather' }} />
