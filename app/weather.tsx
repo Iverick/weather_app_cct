@@ -25,6 +25,8 @@ export default function WeatherScreen() {
     lastFetchSource,
     selectedLocation,
     setSelectedLocation,
+    isConnected,
+    setLoading,
   } = useWeather();
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
@@ -46,6 +48,13 @@ export default function WeatherScreen() {
    * Search weather for typed city value
    */
   const handleSearch = async () => {
+    // Notify the user if his device is offline
+    if (!isConnected) {
+      setError("No network connection.");
+      setLoading(false);
+      return;
+    }
+
     if (!selectedLocation || !city.trim()) {
       setError("Please select a city first.");
       return;
@@ -77,6 +86,13 @@ export default function WeatherScreen() {
       const res = await fetchCachedWeather(searchedCity);
       if (res) return;
     }
+    
+    // Notify the user if his device is offline
+    if (!isConnected) {
+      setError("No network connection.");
+      setLoading(false);
+      return;
+    }
 
     // Have to remove admin1 from the searchedCity label due to geocoding API schema
     // parts = [ name, admin1, country ]
@@ -103,6 +119,13 @@ export default function WeatherScreen() {
    * Fetch weather for the device location
    */
   const handleUseLocation = async () => {
+    // Notify the user if his device is offline
+    if (!isConnected) {
+      setError("No network connection.");
+      setLoading(false);
+      return;
+    }
+    
     await fetchWeatherForCurrentLocation();
   };
 

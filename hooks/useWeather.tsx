@@ -74,13 +74,6 @@ export function useWeather() {
     console.log("68. useWeather. fetching weather for: ")
     console.log(label)
 
-    // Notify the user if his device is offline
-    if (!isConnected) {
-      setError("No network connection.");
-      setLoading(false);
-      return;
-    }
-
     try {
       // First, try to fetch a cached weather data for the city from the storage
       const cacheKey = `city:${label.toLowerCase()}`;
@@ -218,5 +211,7 @@ export function useWeather() {
     lastFetchSource,
     selectedLocation,
     setSelectedLocation,
+    isConnected,
+    setLoading,
   };
 }
