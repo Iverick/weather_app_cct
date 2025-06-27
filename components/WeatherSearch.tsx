@@ -53,10 +53,20 @@ export default function WeatherSearch({
     (city.length < 3 && history.length > 0)
   );
 
+  const searchContainerStyle = [
+    styles.searchContainer,
+    isFocused && styles.searchContainerFocused,
+  ];
   
   return(
     <View style={styles.wrapper}>
-      <View style={styles.searchContainer}>
+      <View style={searchContainerStyle}>
+        <MagnifyingGlassIcon
+          size={20}
+          color={isFocused ? "#4CB5AE" : "#888"} 
+          style={styles.icon}
+        />
+
         <TextInput
           style={styles.input}
           placeholder="Enter city"
@@ -146,15 +156,28 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchContainerFocused: {
+    borderColor: "#4CB5AE"
   },
   input: {
     flex: 1,
-    borderColor: '#aaa',
-    borderWidth: 1,
-    padding: 10,
-    marginRight: 10,
-    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+  },
+  icon: {
+    marginHorizontal: 8,
   },
   switchContainer: {
     flexDirection: 'row',
