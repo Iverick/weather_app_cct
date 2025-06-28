@@ -10,8 +10,8 @@ import Animated, {
 import { HomeIcon } from 'react-native-heroicons/outline';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { WeatherData } from '@/hooks/useWeather';
-import { getWeatherIconName } from '@/utils/weatherIcons';
-import { getWeatherColor } from '@/utils/weatherColors';
+import { getWeatherIconName } from '@/utils/weatherCondition';
+import { getWeatherColor } from '@/utils/weatherCondition';
 import { formatCurrentTime } from '@/utils/time';
 
 interface Props {
