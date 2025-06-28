@@ -55,9 +55,6 @@ function RootLayoutNav() {
         screenOptions={{
           headerStyle: { backgroundColor: '#f8f8f8' },
           headerTitleStyle: { fontWeight: 'bold' },
-          headerRight: () => (
-            <Button title="Weather" onPress={() => router.push('/weather')} />
-          ),
         }}
       />
     </ThemeProvider>

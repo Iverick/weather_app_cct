@@ -81,6 +81,11 @@ export default function WeatherScreen() {
       return;
     }
 
+    console.log("84. weather. search button clicked")
+    console.log(!selectedLocation)
+    console.log(!city.trim())
+
+    // TODO: Fix a bug here
     if (!selectedLocation || !city.trim()) {
       setError("Please select a city first.");
       return;
