@@ -15,7 +15,7 @@ import {
 import { Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowPathIcon, HomeIcon } from 'react-native-heroicons/outline';
-import { useWeather } from '@/hooks/useWeather';
+import { CityLocation, useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
@@ -80,18 +80,43 @@ export default function WeatherScreen() {
       setLoading(false);
       return;
     }
-
-    console.log("84. weather. search button clicked")
-    console.log(!selectedLocation)
-    console.log(!city.trim())
-
-    // TODO: Fix a bug here
-    if (!selectedLocation || !city.trim()) {
+    if (!selectedLocation && !city.trim()) {
       setError("Please select a city first.");
       return;
     }
 
-    const { name, admin1, country, latitude, longitude } = selectedLocation;
+    let location = selectedLocation;
+
+    // No location set - user tries to force weather query for the city fetches from the history list
+    // then it will try to get coordinates for the city
+    if (!location) {
+      // Parse city string into a proper format required by the geocoding API
+      const cityParts = city.split(",").map(s => s.trim());
+      const first = cityParts[0];
+      const last = cityParts[cityParts.length - 1];
+      const queryCity = `${first}, ${last}`;
+
+      // Query geocoding API
+      const res = await fetchCityCoordinates(queryCity);
+
+      location = {
+        name: res.name,
+        country: res.country,
+        admin1: res.admin1,
+        latitude: res.latitude,
+        longitude: res.longitude,
+      };
+
+      setSelectedLocation(location);
+    }
+
+    // **Guard** one more time, just in case
+    if (!location) {
+      setError('Failed to determine location.');
+      return;
+    }
+
+    const { name, admin1, country, latitude, longitude } = location;
     const label = admin1
       ? `${name}, ${admin1}, ${country}`
       : `${name}, ${country}`;
@@ -104,59 +129,18 @@ export default function WeatherScreen() {
   /*
    * Search weather for the city selected from the searched cities dropdown menu
    */
-  const handleSelectHistory = async (searchedCity: string, force = false) => {
-    console.log("67. weather. history drowdown element clicked") 
-    console.log(searchedCity)
-    console.log(selectedLocation)
-
+  const handleSelectHistory = async (searchedCity: string) => {
     setCity(searchedCity);
     setError("");
 
-    // Try to get from cache unless it's force to make an API call
-    if (!force) {
-      const res = await fetchCachedWeather(searchedCity);
-      if (res) return;
-    }
-    
-    // Notify the user if his device is offline
-    if (!isConnected) {
-      setError("No network connection.");
-      setLoading(false);
-      return;
-    }
-
-    // Have to remove admin1 from the searchedCity label due to geocoding API schema
-    // parts = [ name, admin1, country ]
-    const parts = searchedCity.split(',').map(s => s.trim());
-    const queryCity =
-      parts.length === 3
-        ? `${parts[0]},${parts[2]}`
-        : searchedCity; 
-
-    // If weather not in cache, get geocode data and fetch weather data by coords
-    // Do this because useSearchHistory hook don't store city coordinates in the AsyncStorage
-    const { latitude, longitude } = await fetchCityCoordinates(queryCity);
-
-    if (!location) {
-      setError(`Could not geocode stored city: ${searchedCity}`);
-      return;
-    }
-
-    await fetchWeather(latitude, longitude, searchedCity);
-    addToHistory(searchedCity);
+    // Try to get from cache
+    await fetchCachedWeather(searchedCity);
   }
 
   /*
    * Fetch weather for the device location
    */
   const handleUseLocation = async () => {
-    // Notify the user if his device is offline
-    if (!isConnected) {
-      setError("No network connection.");
-      setLoading(false);
-      return;
-    }
-    
     await fetchWeatherForCurrentLocation();
   };
 
@@ -182,9 +166,6 @@ export default function WeatherScreen() {
                     <Text style={styles.fahrenheitText}>°F</Text>
                   </View>
                 )}
-                <Pressable onPress={() => handleSearch()} hitSlop={8}>
-                  <ArrowPathIcon size={24} color="#40e0d0" />
-                </Pressable>
               </View>
             ),
           }}
@@ -228,7 +209,7 @@ export default function WeatherScreen() {
               refreshControl={
                 <RefreshControl
                   refreshing={loading}
-                  onRefresh={() => handleSelectHistory(city, true)}
+                  onRefresh={() => handleSearch()}
                 />
               }
             >

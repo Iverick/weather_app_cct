@@ -135,6 +135,13 @@ export function useWeather() {
         return;
       }
 
+      // If cached data not found, check if the device is online before making an API call
+      if (!isConnected) {
+        setError("No network connection.");
+        setLoading(false);
+        return;
+      }
+
       // TODO: Ideally I would have to get a city name using device coords
       //       instead of putting "Current location" string.
       //       Requires too much hustle to get it done at this point though.
