@@ -1,5 +1,17 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 import { Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowPathIcon, HomeIcon } from 'react-native-heroicons/outline';
@@ -9,6 +21,11 @@ import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { fetchCityCoordinates } from '@/utils/geocoding';
+
+// On Android, enable LayoutAnimation
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function WeatherScreen() {
   const {
@@ -32,7 +49,6 @@ export default function WeatherScreen() {
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
-  // TODO: useFahrenheit needs to be fixed
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
   useEffect(() => {
     if (!weather) return;
@@ -44,6 +60,15 @@ export default function WeatherScreen() {
       fetchWeatherForCurrentLocation();
     }
   }, [useFahrenheit]);
+
+  /**
+   * Whenever `weather` changes, animate layout
+   */ 
+  useEffect(() => {
+    if (weather) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+  }, [weather]);
 
   /*
    * Search weather for typed city value

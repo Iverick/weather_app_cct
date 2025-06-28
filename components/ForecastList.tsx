@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, FlatList, Text, StyleSheet } from 'react-native';
-import { ForecastDay } from '../hooks/useWeather';
+import { ForecastDay } from '@/hooks/useWeather';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getWeatherIconName } from '../utils/weatherIcons';
+import { getWeatherIconName } from '@/utils/weatherIcons';
+import { getWeatherColor } from '@/utils/weatherColors';
 
 interface Props {
   forecast: ForecastDay[];
@@ -35,7 +36,7 @@ export default function ForecastList({ forecast, useFahrenheit }: Props) {
             <MaterialCommunityIcons
               name={getWeatherIconName(item.code)}
               size={32}
-              color="#333"
+              color={getWeatherColor(item.code)}
             />
           </View>
         </View>

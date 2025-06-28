@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { HomeIcon } from 'react-native-heroicons/outline';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { WeatherData } from '../hooks/useWeather';
-import { getWeatherIconName } from '../utils/weatherIcons';
-import { formatCurrentTime } from '../utils/time';
+import { WeatherData } from '@/hooks/useWeather';
+import { getWeatherIconName } from '@/utils/weatherIcons';
+import { getWeatherColor } from '@/utils/weatherColors';
+import { formatCurrentTime } from '@/utils/time';
 
 interface Props {
   weather: WeatherData;
@@ -13,14 +21,37 @@ interface Props {
 
 // This components is used to display current weather data
 export default function CurrentWeather({ weather, useFahrenheit }: Props) {
+  // Setup react-native-reanimated properties to make the weather icon pulse
+  // A shared value that oscillates between 1 and 1.2
+  const scale = useSharedValue(1);
+
+  // Start the looping pulse as soon as the component mounts
+  useEffect(() => {
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, { duration: 800 }),
+        withTiming(1.0, { duration: 800 })
+      ),
+      -1, // infinite
+      true
+    );
+  }, []);
+
+  // Hook it up to an animated style
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
     <View style={styles.container}>
       <View style={styles.iconWrapper}>
-        <MaterialCommunityIcons
-          name={getWeatherIconName(weather.weathercode)}
-          size={64}
-          color="#333"
-        />
+        <Animated.View style={animatedStyle}>
+          <MaterialCommunityIcons
+            name={getWeatherIconName(weather.weathercode)}
+            size={64}
+            color={getWeatherColor(weather.weathercode)}
+          />
+        </Animated.View>
       </View>
       <Text style={styles.text}>
         {formatCurrentTime(weather.currentTime)}
