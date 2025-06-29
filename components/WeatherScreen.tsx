@@ -195,7 +195,12 @@ export default function WeatherScreen() {
             setSelectedLocation={setSelectedLocation}
           />
         </View>
-        {loading && <ActivityIndicator size="large" />}
+        {loading && (
+          <ActivityIndicator
+            testID="loading-indicator"
+            size="large"
+          />
+        )}
         {error && (
           <Text style={styles.error}>
             {error}

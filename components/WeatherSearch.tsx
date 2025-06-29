@@ -82,7 +82,12 @@ export default function WeatherSearch({
           }
         />
 
-        <Pressable style={styles.searchButton} onPress={onSubmit}>
+        <Pressable
+          style={styles.searchButton}
+          onPress={onSubmit}
+          testID="search-button"
+          accessibilityLabel="Search"
+        >
           <MagnifyingGlassIcon size={21} color="#fff" />
         </Pressable>
       </View>
