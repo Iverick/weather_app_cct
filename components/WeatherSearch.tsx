@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
-import { MagnifyingGlassIcon, TrashIcon } from 'react-native-heroicons/outline';
+import { MagnifyingGlassIcon, TrashIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { fetchCitiesList, formatLocation, GeoLocation } from '@/utils/geocoding';
 import { CityLocation } from '@/hooks/useWeather';
 
@@ -73,7 +73,6 @@ export default function WeatherSearch({
           value={city}
           onChangeText={setCity}
           onFocus={() => {
-            setSelectedLocation(null);
             setIsFocused(true)
           }}
           // Set onBlur delay here to make sure child onPress will always run 
@@ -81,6 +80,21 @@ export default function WeatherSearch({
             setIsFocused(false)}, 200)
           }
         />
+
+        {city.length > 0 && (
+          <Pressable
+            style={styles.clearInput}
+            onPress={() => {
+              setCity('');
+              setSelectedLocation(null);
+              setIsFocused(false);
+            }}
+            accessibilityLabel="Clear city"
+            hitSlop={8}
+          >
+            <XMarkIcon size={20} color="#f20202" />
+          </Pressable>
+        )}
 
         <Pressable
           style={styles.searchButton}
@@ -181,22 +195,15 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingLeft: 8,
+    paddingRight: 0,
+  },
+  clearInput: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   icon: {
     marginHorizontal: 8,
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 8,
-    paddingHorizontal: 5,
-  },
-  celsiusText: {
-    marginRight: 5,
-  },
-  fahrenheitText: {
-    marginLeft: 5,
   },
   searchButton: {
     backgroundColor: "#40e0d0",
