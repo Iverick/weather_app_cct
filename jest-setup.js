@@ -23,3 +23,11 @@ jest.mock('expo-router', () => ({
     Screen: 'Screen', // a dummy component
   },
 }));
+
+// Mock weatherCache module
+jest.mock('@/utils/weatherCache', () => ({
+  getCached: jest.fn().mockResolvedValue(null),
+  setCached: jest.fn().mockResolvedValue(undefined),
+  getLastCacheKey: jest.fn(),
+  setLastCacheKey: jest.fn(),
+}));

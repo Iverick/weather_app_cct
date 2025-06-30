@@ -5,17 +5,13 @@ export function formatCurrentTime(rawTime: string): string {
 
   const isToday = currentDate.toDateString() === weatherDate.toDateString();
 
-  const label = isToday 
-  ? `Today, ${weatherDate.toLocaleString(undefined, {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    })}` 
-  : weatherDate.toLocaleString(undefined, {
+  const formattedDate = weatherDate.toLocaleString(undefined, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
   });
+
+  const label = isToday ? `Today, ${formattedDate}` : formattedDate;
 
   const time = weatherDate.toLocaleTimeString(undefined, {
     hour: '2-digit',
