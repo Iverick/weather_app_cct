@@ -108,7 +108,7 @@ export function useWeather() {
   /*
    * Method fetches weather data for the device coordinates
    */
-  const fetchWeatherForCurrentLocation = async () => {
+  const fetchWeatherForCurrentLocation = async (forceCall: boolean) => {
     setCity("");
     setLoading(true);
     setWeather(null);
@@ -128,11 +128,13 @@ export function useWeather() {
 
       // Try to fetch a cached weather data for the device location from the storage
       const cacheKey = `coords:${latitude.toFixed(4)},${longitude.toFixed(4)}`;
-      const cached = await getCached<WeatherData>(cacheKey);
-      if (cached) {
-        console.log("122. useWeather. fetching weather data from cache");
-        setWeather(cached);
-        return;
+      if (!forceCall) {
+        const cached = await getCached<WeatherData>(cacheKey);
+        if (cached) {
+          console.log("122. useWeather. fetching weather data from cache");
+          setWeather(cached);
+          return;
+        }
       }
 
       // If cached data not found, check if the device is online before making an API call

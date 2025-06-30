@@ -57,7 +57,7 @@ export default function WeatherScreen() {
     if (lastFetchSource === 'city') {
       handleSearch();
     } else if (lastFetchSource === 'location') {
-      fetchWeatherForCurrentLocation();
+      fetchWeatherForCurrentLocation(true);
     }
   }, [useFahrenheit]);
 
@@ -140,8 +140,8 @@ export default function WeatherScreen() {
   /*
    * Fetch weather for the device location
    */
-  const handleUseLocation = async () => {
-    await fetchWeatherForCurrentLocation();
+  const handleUseLocation = async (forceCall: boolean = false) => {
+    await fetchWeatherForCurrentLocation(forceCall);
   };
 
   return (
@@ -173,7 +173,7 @@ export default function WeatherScreen() {
 
         {/* Location button */}
         <Pressable
-          onPress={handleUseLocation}
+          onPress={() => handleUseLocation()}
           style={styles.locationButton}
         >
           <HomeIcon size={28} color="#40e0d0" />
@@ -214,7 +214,13 @@ export default function WeatherScreen() {
               refreshControl={
                 <RefreshControl
                   refreshing={loading}
-                  onRefresh={() => handleSearch()}
+                  onRefresh={() => {
+                    if (lastFetchSource === 'city') {
+                      handleSearch()
+                    } else if (lastFetchSource === 'location') {
+                      handleUseLocation(true);
+                    }
+                  }}
                 />
               }
             >
