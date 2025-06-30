@@ -20,7 +20,7 @@ import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
-import { fetchCityCoordinates } from '@/utils/geocoding';
+import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
 
 // On Android, enable LayoutAnimation
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -117,9 +117,7 @@ export default function WeatherScreen() {
     }
 
     const { name, admin1, country, latitude, longitude } = location;
-    const label = admin1
-      ? `${name}, ${admin1}, ${country}`
-      : `${name}, ${country}`;
+    const label = formatLocation(name, admin1, country);
 
     await fetchWeather(latitude, longitude, label);
     // After the fetching data, push city to the AsyncStorage history vault

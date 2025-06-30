@@ -48,3 +48,14 @@ export async function fetchCitiesList(queryCity: string): Promise<GeoLocation[]>
     longitude: r.longitude,
   }));
 }
+
+/** 
+ * Given a GeoLocation, returns a human-readable label.
+ * e.g. {name:'Dublin',admin1:'Leinster',country:'Ireland'} → "Dublin, Leinster, Ireland"
+ * or  {name:'Berlin', country:'Germany'}           → "Berlin, Germany"
+ */
+export function formatLocation(name: string, admin1: string | undefined, country: string): string {
+  return admin1 
+    ? `${name}, ${admin1}, ${country}` 
+    : `${name}, ${country}`;
+}

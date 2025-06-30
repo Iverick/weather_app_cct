@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { MagnifyingGlassIcon, TrashIcon } from 'react-native-heroicons/outline';
-import { fetchCitiesList, GeoLocation } from '@/utils/geocoding';
+import { fetchCitiesList, formatLocation, GeoLocation } from '@/utils/geocoding';
 import { CityLocation } from '@/hooks/useWeather';
 
 interface Props {
@@ -112,7 +112,9 @@ export default function WeatherSearch({
                     latitude: location.latitude,
                     longitude: location.longitude,
                   });
-                  setCity(location.name);
+                  setCity(
+                    formatLocation(location.name, location.admin1, location.country)
+                  );
                   setIsFocused(false);
                 }}
                 style={styles.dropdownItem}
