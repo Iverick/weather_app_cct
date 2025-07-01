@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
+import { View, TextInput, FlatList, StyleSheet, Text, Pressable, TouchableOpacity } from 'react-native';
+// import { FlatList } from 'react-native-gesture-handler';
 import { MagnifyingGlassIcon, TrashIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { fetchCitiesList, formatLocation, GeoLocation } from '@/utils/geocoding';
 import { CityLocation } from '@/hooks/useWeather';
@@ -15,6 +16,8 @@ interface Props {
   clearHistory: () => void;
   selectedLocation: CityLocation | null;
   setSelectedLocation: (coords: CityLocation | null) => void;
+  citySearchFocused: boolean;
+  setCitySearchFocused: Dispatch<SetStateAction<boolean>>;
 }
 
 // Displays weather search field and button inside container
@@ -26,8 +29,9 @@ export default function WeatherSearch({
   onSelectHistory,
   clearHistory,
   setSelectedLocation,
+  citySearchFocused,
+  setCitySearchFocused,
 }: Props) {
-  const [isFocused, setIsFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<GeoLocation[]>([]);
 
   useEffect(() => {
@@ -47,15 +51,15 @@ export default function WeatherSearch({
     return () => clearTimeout(handler);
   }, [city]);
 
-  const showSuggestions = isFocused && (
-    suggestions.length > 0 || 
-    // Show history items inside suggestions dropdown if city string is less than 3 chars
-    (city.length < 3 && history.length > 0)
+  const showSuggestions = citySearchFocused && (
+    suggestions.length > 0 && city.length >= 3
   );
+
+  const showHistory = citySearchFocused && city.length < 2 && history.length > 0;
 
   const searchContainerStyle = [
     styles.searchContainer,
-    isFocused && styles.searchContainerFocused,
+    citySearchFocused && styles.searchContainerFocused,
   ];
   
   return(
@@ -63,7 +67,7 @@ export default function WeatherSearch({
       <View style={searchContainerStyle}>
         <MagnifyingGlassIcon
           size={20}
-          color={isFocused ? "#4CB5AE" : "#888"} 
+          color={citySearchFocused ? "#4CB5AE" : "#888"} 
           style={styles.icon}
         />
 
@@ -73,21 +77,22 @@ export default function WeatherSearch({
           value={city}
           onChangeText={setCity}
           onFocus={() => {
-            setIsFocused(true)
+            setCitySearchFocused(true)
           }}
           // Set onBlur delay here to make sure child onPress will always run 
           onBlur={() => setTimeout(() => {
-            setIsFocused(false)}, 200)
+            setCitySearchFocused(false)}, 200)
           }
         />
 
+        {/* Clear city input button */}
         {city.length > 0 && (
           <Pressable
             style={styles.clearInput}
             onPress={() => {
               setCity('');
               setSelectedLocation(null);
-              setIsFocused(false);
+              setCitySearchFocused(false);
             }}
             accessibilityLabel="Clear city"
             hitSlop={8}
@@ -107,13 +112,14 @@ export default function WeatherSearch({
       </View>
       
       {showSuggestions && (
-        <View style={styles.dropdown}>
-          {suggestions.length > 0
-          // This block displays a list of suggested location for typed city string fetched from geocoding API
-          ? <FlatList
+            <FlatList
               data={suggestions}
               keyExtractor={(item) => `${item.latitude}-${item.longitude}`}
+              style={styles.dropdown}            // ← maxHeight & borders live here now
+              contentContainerStyle={{ paddingBottom: 10 }}
               keyboardShouldPersistTaps="always"
+              nestedScrollEnabled={true}         // ← let Android hand the drag to this list
+              showsVerticalScrollIndicator={true}
               renderItem={({ item: location }) => (
                 <TouchableOpacity
                   onPressIn={() => {
@@ -129,7 +135,7 @@ export default function WeatherSearch({
                   setCity(
                     formatLocation(location.name, location.admin1, location.country)
                   );
-                  setIsFocused(false);
+                  setCitySearchFocused(false);
                 }}
                 style={styles.dropdownItem}
                 >
@@ -137,16 +143,21 @@ export default function WeatherSearch({
                 </TouchableOpacity>
               )}
             />
-          // This block displays a list of stored cities searches in history storage
-          : (<>
+      )}
+          {/* This block displays a list of stored cities searches in history storage */}
+          {showHistory && (
+            <View style={styles.dropdown}>
               <FlatList
                 data={history}
                 keyExtractor={(item) => item}
+                contentContainerStyle={{ paddingBottom: 10 }}
                 keyboardShouldPersistTaps="always"
+                nestedScrollEnabled={true}         // ← let Android hand the drag to this list
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     onPressIn={() => {
-                      setIsFocused(false);
+                      setCitySearchFocused(false);
                       onSelectHistory(item);
                     }}
                     style={styles.dropdownItem}
@@ -162,10 +173,8 @@ export default function WeatherSearch({
                 <TrashIcon size={20} color="red" />
                 <Text style={styles.clearText}>Clear search history</Text>
               </Pressable>
-            </>)
-          }
-        </View>
-      )}
+            </View>
+          )}
     </View>
   );
 }

@@ -46,6 +46,7 @@ export default function WeatherScreen() {
     isConnected,
     setLoading,
   } = useWeather();
+  const [citySearchFocused, setCitySearchFocused] = useState(false);
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
@@ -57,7 +58,7 @@ export default function WeatherScreen() {
     if (lastFetchSource === 'city') {
       handleSearch();
     } else if (lastFetchSource === 'location') {
-      fetchWeatherForCurrentLocation(true);
+      handleUseLocation(true);
     }
   }, [useFahrenheit]);
 
@@ -149,6 +150,7 @@ export default function WeatherScreen() {
       style={StyleSheet.absoluteFill}
     >
       <View style={styles.container}>
+        <Stack.Screen options={{ title: '' }} />
         {/* Refresh header button that enforces fetching weather data from API */}
         <Stack.Screen
           options={{
@@ -177,7 +179,6 @@ export default function WeatherScreen() {
           <HomeIcon size={28} color="#40e0d0" />
         </Pressable>
 
-        <Stack.Screen options={{ title: 'Weather' }} />
         <Text style={styles.title}>Enter City Name</Text>
         <View style={styles.searchForm}>
           <WeatherSearch
@@ -191,6 +192,8 @@ export default function WeatherScreen() {
             clearHistory={clearHistory}
             selectedLocation={selectedLocation}
             setSelectedLocation={setSelectedLocation}
+            citySearchFocused={citySearchFocused}
+            setCitySearchFocused={setCitySearchFocused}
           />
         </View>
         {loading && (
@@ -205,7 +208,7 @@ export default function WeatherScreen() {
           </Text>
         )}
         {/* Weather data displayed here */}
-        {weather && 
+        {weather && !citySearchFocused && 
           <View style={styles.weatherContainer}>
             {/* Use can scroll weather data view to enforce fetching weather from API */}
             <ScrollView
