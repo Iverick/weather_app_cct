@@ -8,7 +8,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { StatusBar } from 'expo-status-bar';
-import { Button } from 'react-native';
+import { WeatherProvider } from '@/providers/WeatherProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -41,7 +41,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <WeatherProvider>
+      <RootLayoutNav />
+    </WeatherProvider>
+  );
 }
 
 function RootLayoutNav() {

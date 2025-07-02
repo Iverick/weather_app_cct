@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import NetInfo from '@react-native-community/netinfo';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { fetchCityCoordinates } from '@/utils/geocoding';
 import { getCached, setCached } from '@/utils/weatherCache';
+import { WeatherContext } from '@/providers/WeatherProvider';
 
 export interface ForecastDay {
   date: string;
@@ -32,7 +33,7 @@ export interface CityLocation {
 
 type Source = 'city' | 'location' | null;
 
-export function useWeather() {
+export function useWeatherHook() {
   const [city, setCity] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<CityLocation | null>(null);
   const [loading, setLoading] = useState(false);
@@ -223,4 +224,13 @@ export function useWeather() {
     isConnected,
     setLoading,
   };
+}
+
+// Consume hook with WeatherContext
+export function useWeather() {
+  const context = useContext(WeatherContext);
+  if (!context) {
+    throw new Error('useWeather must be used inside a WeatherProvider');
+  }
+  return context;
 }
