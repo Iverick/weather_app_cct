@@ -12,10 +12,10 @@ import {
   Platform,
   UIManager,
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ArrowPathIcon, HomeIcon } from 'react-native-heroicons/outline';
-import { CityLocation, useWeather } from '@/hooks/useWeather';
+import { PlusIcon, HomeIcon } from 'react-native-heroicons/outline';
+import { useWeather } from '@/hooks/useWeather';
 import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
@@ -47,6 +47,7 @@ export default function WeatherScreen() {
     setLoading,
   } = useWeather();
 
+  const router = useRouter();
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
@@ -149,11 +150,21 @@ export default function WeatherScreen() {
       style={StyleSheet.absoluteFill}
     >
       <View style={styles.container}>
-        {/* Refresh header button that enforces fetching weather data from API */}
+        
+        <Stack.Screen options={{ title: '' }} />
         <Stack.Screen
           options={{
+            headerLeft: () => (
+              <Pressable
+                onPress={() => router.push('/select-location')}
+                style={styles.selectLocationButton}
+              >
+                <PlusIcon size={20} color="#40e0d0" />
+                <Text style={styles.selectLocationText}>Select Location</Text>
+              </Pressable>
+            ),
             headerRight: () => (
-              <View style={styles.headerContainer}>
+              <View>
                 {selectedLocation && (
                   <View style={styles.unitsSwitchContainer}>
                     <Text style={styles.celsiusText}>°C</Text>
@@ -177,7 +188,6 @@ export default function WeatherScreen() {
           <HomeIcon size={28} color="#40e0d0" />
         </Pressable>
 
-        <Stack.Screen options={{ title: 'Weather' }} />
         <Text style={styles.title}>Enter City Name</Text>
         <View style={styles.searchForm}>
           <WeatherSearch
@@ -236,15 +246,16 @@ export default function WeatherScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 12
+  container: {
+    flex: 1,
+    paddingTop: 80,
+    paddingHorizontal: 20,
   },
+  // header elements
   unitsSwitchContainer: { 
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 12
+    marginRight: 24
   },
   celsiusText: {
     marginRight: 4,
@@ -256,17 +267,34 @@ const styles = StyleSheet.create({
     color: "#40e0d0",
     fontSize: 17
   },
+  selectLocationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 14,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  selectLocationText: {
+    marginLeft: 6,
+    color: '#40e0d0',
+    fontWeight: '600'
+  },
   refetchButton: {
     marginRight: 16
   },
   refetchIcon: {
     color: "#40e0d0"
   },
-  container: {
-    flex: 1,
-    paddingTop: 80,
-    paddingHorizontal: 20,
-  },
+  // body elements
   locationButton: {
     position: "absolute",
     top: 20,
