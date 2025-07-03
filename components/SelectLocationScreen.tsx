@@ -36,8 +36,16 @@ export default function SelectLocationScreen() {
     }
   };
 
+  
+
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerTintColor: '#40e0d0',
+        }}
+      />
+      
       <Stack.Screen options={{ title: '' }} />
 
       <Text style={styles.title}>Enter City Name</Text>

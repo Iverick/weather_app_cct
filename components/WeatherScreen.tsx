@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
   },
   weatherContainer: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   forecastSticky: {
     position: 'absolute',
