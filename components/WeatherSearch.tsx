@@ -8,12 +8,9 @@ interface Props {
   city: string;
   setCity: (text: string) => void;
   onSubmit: () => void;
-  useFahrenheit: boolean;
-  setUseFahrenheit: Dispatch<SetStateAction<boolean>>;
   history: string[];
   onSelectHistory: (city: string) => void;
   clearHistory: () => void;
-  selectedLocation: CityLocation | null;
   setSelectedLocation: (coords: CityLocation | null) => void;
 }
 
@@ -219,7 +216,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     marginTop: 2,
-    maxHeight: 250,
+    maxHeight: 500,
   },
   dropdownItem: {
     padding: 10,

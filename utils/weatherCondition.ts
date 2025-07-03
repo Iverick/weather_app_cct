@@ -17,7 +17,6 @@ export function getWeatherCondition(code: number): string {
  */
 export function getWeatherIconName(code: number): any {
   const condition = getWeatherCondition(code);
-  console.log("getWeatherIconName: ", condition);
   return `weather-${condition}`;
 }
 

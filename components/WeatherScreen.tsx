@@ -45,10 +45,11 @@ export default function WeatherScreen() {
     setSelectedLocation,
     isConnected,
     setLoading,
+    handleSearch,
+    handleUseLocation,
   } = useWeather();
 
   const router = useRouter();
-  const { history, addToHistory, clearHistory } = useSearchHistory();
 
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function WeatherScreen() {
     if (lastFetchSource === 'city') {
       handleSearch();
     } else if (lastFetchSource === 'location') {
-      fetchWeatherForCurrentLocation(true);
+      handleUseLocation(true);
     }
   }, [useFahrenheit]);
 
@@ -71,78 +72,6 @@ export default function WeatherScreen() {
     }
   }, [weather]);
 
-  /*
-   * Search weather for typed city value
-   */
-  const handleSearch = async () => {
-    // Notify the user if his device is offline
-    if (!isConnected) {
-      setError("No network connection.");
-      setLoading(false);
-      return;
-    }
-    if (!selectedLocation && !city.trim()) {
-      setError("Please select a city first.");
-      return;
-    }
-
-    let location = selectedLocation;
-
-    // No location set - user tries to force weather query for the city fetches from the history list
-    // then it will try to get coordinates for the city
-    if (!location) {
-      // Parse city string into a proper format required by the geocoding API
-      const cityParts = city.split(",").map(s => s.trim());
-      const first = cityParts[0];
-      const last = cityParts[cityParts.length - 1];
-      const queryCity = `${first}, ${last}`;
-
-      // Query geocoding API
-      const res = await fetchCityCoordinates(queryCity);
-
-      location = {
-        name: res.name,
-        country: res.country,
-        admin1: res.admin1,
-        latitude: res.latitude,
-        longitude: res.longitude,
-      };
-
-      setSelectedLocation(location);
-    }
-
-    // **Guard** one more time, just in case
-    if (!location) {
-      setError('Failed to determine location.');
-      return;
-    }
-
-    const { name, admin1, country, latitude, longitude } = location;
-    const label = formatLocation(name, admin1, country);
-
-    await fetchWeather(latitude, longitude, label);
-    // After the fetching data, push city to the AsyncStorage history vault
-    addToHistory(label);
-  };
-
-  /*
-   * Search weather for the city selected from the searched cities dropdown menu
-   */
-  const handleSelectHistory = async (searchedCity: string) => {
-    setCity(searchedCity);
-    setError("");
-
-    // Try to get from cache
-    await fetchCachedWeather(searchedCity);
-  }
-
-  /*
-   * Fetch weather for the device location
-   */
-  const handleUseLocation = async (forceCall: boolean = false) => {
-    await fetchWeatherForCurrentLocation(forceCall);
-  };
-
   return (
     <LinearGradient
       colors={['#FFFFFF', '#F9F2F4', '#E8F7F6']}
@@ -150,7 +79,6 @@ export default function WeatherScreen() {
       style={StyleSheet.absoluteFill}
     >
       <View style={styles.container}>
-        
         <Stack.Screen options={{ title: '' }} />
         <Stack.Screen
           options={{
@@ -188,21 +116,6 @@ export default function WeatherScreen() {
           <HomeIcon size={28} color="#40e0d0" />
         </Pressable>
 
-        <Text style={styles.title}>Enter City Name</Text>
-        <View style={styles.searchForm}>
-          <WeatherSearch
-            city={city}
-            setCity={setCity}
-            onSubmit={handleSearch}
-            useFahrenheit={useFahrenheit}
-            setUseFahrenheit={setUseFahrenheit}
-            history={history}
-            onSelectHistory={handleSelectHistory}
-            clearHistory={clearHistory}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-          />
-        </View>
         {loading && (
           <ActivityIndicator
             testID="loading-indicator"
@@ -314,10 +227,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-  },
-  searchForm: {
-    display: "flex",
-    flexDirection: "row",
   },
   error: {
     color: "red",

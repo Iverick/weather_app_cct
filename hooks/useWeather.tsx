@@ -2,9 +2,10 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import NetInfo from '@react-native-community/netinfo';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
-import { fetchCityCoordinates } from '@/utils/geocoding';
+import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
 import { getCached, setCached } from '@/utils/weatherCache';
 import { WeatherContext } from '@/providers/WeatherProvider';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 
 export interface ForecastDay {
   date: string;
@@ -43,6 +44,8 @@ export function useWeatherHook() {
   const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
   const [isConnected, setIsConnected] = useState<boolean>(true);
 
+  const { history, addToHistory, clearHistory } = useSearchHistory();
+
   useEffect(() => {
     console.log("44. useWeather. CityLocation set")
     console.log(selectedLocation)
@@ -55,6 +58,78 @@ export function useWeatherHook() {
     });
     return () => sub();
   }, []);
+
+  /*
+   * Search weather for typed city value
+   */
+  const handleSearch = async () => {
+    // Notify the user if his device is offline
+    if (!isConnected) {
+      setError("No network connection.");
+      setLoading(false);
+      return;
+    }
+    if (!selectedLocation && !city.trim()) {
+      setError("Please select a city first.");
+      return;
+    }
+
+    let location = selectedLocation;
+
+    // No location set - user tries to force weather query for the city fetches from the history list
+    // then it will try to get coordinates for the city
+    if (!location) {
+      // Parse city string into a proper format required by the geocoding API
+      const cityParts = city.split(",").map(s => s.trim());
+      const first = cityParts[0];
+      const last = cityParts[cityParts.length - 1];
+      const queryCity = `${first}, ${last}`;
+
+      // Query geocoding API
+      const res = await fetchCityCoordinates(queryCity);
+
+      location = {
+        name: res.name,
+        country: res.country,
+        admin1: res.admin1,
+        latitude: res.latitude,
+        longitude: res.longitude,
+      };
+
+      setSelectedLocation(location);
+    }
+
+    // **Guard** one more time, just in case
+    if (!location) {
+      setError('Failed to determine location.');
+      return;
+    }
+
+    const { name, admin1, country, latitude, longitude } = location;
+    const label = formatLocation(name, admin1, country);
+
+    await fetchWeather(latitude, longitude, label);
+    // After the fetching data, push city to the AsyncStorage history vault
+    addToHistory(label);
+  };
+
+  /*
+   * Search weather for the city selected from the searched cities dropdown menu
+   */
+  const handleSelectHistory = async (searchedCity: string) => {
+    setCity(searchedCity);
+    setError("");
+
+    // Try to get from cache
+    await fetchCachedWeather(searchedCity);
+  }
+
+  /*
+   * Fetch weather for the device location
+   */
+  const handleUseLocation = async (forceCall: boolean = false) => {
+    await fetchWeatherForCurrentLocation(forceCall);
+  };
 
   /**
    * Fetch weather by coordinates and a display label.
@@ -162,10 +237,11 @@ export function useWeatherHook() {
    */
   async function fetchAndParseWeather(latitude: number, longitude: number, label: string, cacheKey: string) {
     // Create an API URL and query it to get weatherData response
+    console.log("240. useWeather. fetchAndParseWeather called");
     const url = buildWeatherUrl({ latitude, longitude, useFahrenheit });
     const weatherRes = await fetch(url);
     const weatherData = await weatherRes.json();
-    console.log("143. useWeather. weatherData fetched from API");
+    console.log("244. useWeather. weatherData fetched from API");
     console.log(weatherData);
 
     // Humidity returned in a separate object, that contains 2 arrays of time and humidity values
@@ -223,6 +299,12 @@ export function useWeatherHook() {
     setSelectedLocation,
     isConnected,
     setLoading,
+    history,
+    addToHistory,
+    clearHistory,
+    handleSearch,
+    handleSelectHistory,
+    handleUseLocation,
   };
 }
 

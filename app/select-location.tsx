@@ -1,6 +1,3 @@
-import { View, StyleSheet } from 'react-native';
-import { useRouter } from "expo-router";
+import SelectLocationScreen from '@/components/SelectLocationScreen';
 
-export default function SelectLocationScreen() {
-  const router = useRouter();
-}
+export default SelectLocationScreen;

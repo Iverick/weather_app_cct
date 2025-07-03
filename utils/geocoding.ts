@@ -36,7 +36,7 @@ export async function fetchCityCoordinates(city: string): Promise<GeoLocation> {
  *          the place name, administrative region, country, and coordinates.
  */
 export async function fetchCitiesList(queryCity: string): Promise<GeoLocation[]> {
-  const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(queryCity)}&count=6`;
+  const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(queryCity)}&count=10`;
   const response = await fetch(geocodingUrl);
   const data = await response.json();
 
