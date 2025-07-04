@@ -1,1 +1,1 @@
-export const OPEN_METEO_BASE_URL  = "https://api.open-meteo.com/v1/forecast";
+export const OPEN_METEO_BASE_URL  = "https://api.open-meteo.com/v1";

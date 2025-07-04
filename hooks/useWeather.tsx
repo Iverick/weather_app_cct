@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import NetInfo from '@react-native-community/netinfo';
-import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
-import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
-import { getCached, setCached, getLastQuery, saveLastQuery } from '@/utils/weatherCache';
 import { WeatherContext } from '@/providers/WeatherProvider';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
+import { getCached, setCached, getLastQuery, saveLastQuery } from '@/utils/weatherCache';
+import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
+import { buildAirQualityUrl } from '@/utils/buildAirQualityUrl';
 
 export interface ForecastDay {
   date: string;
@@ -32,7 +33,22 @@ export interface CityLocation {
   longitude: number;
 }
 
+export interface AirQuality {
+  time: string[];
+  pm2_5: number[];
+  pm10: number[];
+  carbon_monoxide: number[];
+  nitrogen_dioxide: number[];
+  sulphur_dioxide: number[];
+  ozone: number[];
+  european_aqi: number[];
+}
+
 type Source = 'city' | 'location' | null;
+
+type AirQualityData = {
+  hourly: AirQuality
+};
 
 export function useWeatherHook() {
   const [city, setCity] = useState("");
@@ -43,6 +59,7 @@ export function useWeatherHook() {
   const [useFahrenheit, setUseFahrenheit] = useState(false);
   const [lastFetchSource, setLastFetchSource] = useState<Source>(null);
   const [isConnected, setIsConnected] = useState<boolean>(true);
+  const [airQuality, setAirQuality] = useState<AirQualityData | null>(null);
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
 
@@ -310,13 +327,30 @@ export function useWeatherHook() {
 
     // setWeather state
     setWeather(result);
+    // Fetch air quality data
+    await fetchAirQuality(latitude, longitude);
     // Cache weather data
     await setCached(cacheKey, result);
     await saveLastQuery(result);
   }
 
+  /**
+   * Fetch air quality data for the given coordinates and set it to airQuality state.
+   * @param latitude
+   * @param longitude
+   */
+  async function fetchAirQuality(latitude: number, longitude: number) {
+    const url = buildAirQualityUrl(latitude, longitude);
+    const res = await fetch(url)
+    const data: AirQualityData = await res.json();
+    console.log("340. useWeather. Air quality data fetched:");
+    console.log(data);
+    setAirQuality(data);
+  }
+
   return {
     weather,
+    airQuality,
     city,
     setCity,
     loading,

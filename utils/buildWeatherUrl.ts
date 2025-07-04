@@ -1,4 +1,6 @@
-import { OPEN_METEO_BASE_URL } from '../constants/api';
+import { OPEN_METEO_BASE_URL } from '@/constants/api';
+
+const FORECAST_API_URL = `${OPEN_METEO_BASE_URL}/forecast`;
 
 export function buildWeatherUrl(params: {
   latitude: number;
@@ -13,5 +15,5 @@ export function buildWeatherUrl(params: {
   const unitParams = useFahrenheit ? "&temperature_unit=fahrenheit&windspeed_unit=mph" : "";
 
   // Glue URL parts to a single string to get a final API URL
-  return `${OPEN_METEO_BASE_URL}?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m${forecastParams}&timezone=auto${unitParams}`;
+  return `${FORECAST_API_URL}?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relative_humidity_2m${forecastParams}&timezone=auto${unitParams}`;
 }
