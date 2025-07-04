@@ -22,14 +22,18 @@ jest.mock('expo-location', () => ({
 }));
 
 // Mock utilities
-import * as geo from '../utils/geocoding';
-import * as cache from '../utils/weatherCache';
-import * as urlBuilder from '../utils/buildWeatherUrl';
+import * as geo from '@/utils/geocoding';
+import * as cache from '@/utils/weatherCache';
+import * as urlBuilder from '@/utils/buildWeatherUrl';
 import { WeatherProvider } from '@/providers/WeatherProvider';
+
+const FAKE_AQI_URL = 'https://api.open-meteo.com/fake-aqi-url';
 
 jest.spyOn(geo, 'fetchCityCoordinates').mockResolvedValue([
   { name: 'Test City', country: 'TC', latitude: 51, longitude: -0.1 }
 ]);
+jest.spyOn(urlBuilder, 'buildAirQualityUrl')
+      .mockReturnValue(FAKE_AQI_URL);
 
 // Mock the network fetch
 global.fetch = jest.fn().mockResolvedValue({
@@ -150,5 +154,18 @@ describe('useWeather hook', () => {
     // Check that the weather was loaded from cache
     expect(result.current.weather).toEqual(fakeWeather);
     expect(result.current.error).toBe(null);
+  });
+
+  it('calls the Air Quality endpoint with the correct URL', async () => {
+    const { result } = renderHook(() => useWeather(), { wrapper });
+
+    // trigger a weather fetch (which in turn calls fetchAirQuality)
+    await act(async () => {
+      await result.current.fetchWeather(12.34, 56.78, 'Test, Country');
+    });
+
+    expect(urlBuilder.buildAirQualityUrl).toHaveBeenCalledWith(12.34, 56.78);
+    expect(global.fetch).toHaveBeenCalledWith(FAKE_AQI_URL);
+    expect(result.current.airQuality).not.toBeNull();
   });
 });

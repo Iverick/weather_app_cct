@@ -3,11 +3,18 @@ import { View, Text, StyleSheet } from 'react-native';
 import { AirQualityData } from '@/hooks/useWeather';
 import { getLastValueBefore } from '@/utils/weatherUtils';
 
-function getAqiColor(aqi: number): string {
+export function getAqiColor(aqi: number): string {
   if (aqi <= 50)  return '#4caf50';   // green
   if (aqi <= 100) return '#ffeb3b';   // yellow
   if (aqi <= 150) return '#ff9800';   // orange
   return '#f44336';                   // red
+}
+
+export function getAqiCategory(aqi: number): string {
+  return aqi <= 50 ? 'Good'
+                 : aqi <= 100 ? 'Moderate'
+                 : aqi <= 150 ? 'Unhealthy for Sensitive'
+                 : 'Unhealthy';
 }
 
 
@@ -22,16 +29,13 @@ export default function AirQualityCard({ data }: { data: AirQualityData }) {
     new Date()
   ) ?? data.hourly.european_aqi[data.hourly.european_aqi.length - 1]; // fallback if nothing found
 
-  const category = aqi <= 50 ? 'Good'
-                 : aqi <= 100 ? 'Moderate'
-                 : aqi <= 150 ? 'Unhealthy for Sensitive'
-                 : 'Unhealthy';
+  const category = getAqiCategory(aqi);
 
   return (
     <View>
       <View style={styles.card}>
         <Text style={styles.title}>AQI</Text>
-        <View style={[styles.circle, { backgroundColor: getAqiColor(aqi) }]}>
+        <View style={[styles.circle, { backgroundColor: getAqiColor(aqi) }]} testID="aq-circle">
           <Text style={styles.circleText}>{aqi}</Text>
         </View>
         <Text style={styles.category}>{category}</Text>

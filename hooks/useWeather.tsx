@@ -5,8 +5,7 @@ import { WeatherContext } from '@/providers/WeatherProvider';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
 import { getCached, setCached, getLastQuery, saveLastQuery } from '@/utils/weatherCache';
-import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
-import { buildAirQualityUrl } from '@/utils/buildAirQualityUrl';
+import { buildWeatherUrl, buildAirQualityUrl } from '@/utils/buildWeatherUrl';
 
 export interface ForecastDay {
   date: string;
