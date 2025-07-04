@@ -21,6 +21,7 @@ import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
+import AirQualityCard from './AirQualityCard';
 
 // On Android, enable LayoutAnimation
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -30,6 +31,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 export default function WeatherScreen() {
   const {
     weather,
+    airQuality,
     city,
     setCity,
     loading,
@@ -137,6 +139,7 @@ export default function WeatherScreen() {
             </ScrollView>
               
             <View style={styles.forecastSticky}>
+              {airQuality && <AirQualityCard data={airQuality} />}
               <ForecastList forecast={weather.forecast} useFahrenheit={useFahrenheit} />
             </View>
           </View>

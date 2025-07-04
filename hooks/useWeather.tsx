@@ -46,7 +46,7 @@ export interface AirQuality {
 
 type Source = 'city' | 'location' | null;
 
-type AirQualityData = {
+export type AirQualityData = {
   hourly: AirQuality
 };
 
@@ -346,6 +346,7 @@ export function useWeatherHook() {
     console.log("340. useWeather. Air quality data fetched:");
     console.log(data);
     setAirQuality(data);
+    console.log(airQuality);
   }
 
   return {
