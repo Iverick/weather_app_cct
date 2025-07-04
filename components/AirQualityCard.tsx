@@ -3,6 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 import { AirQualityData } from '@/hooks/useWeather';
 import { getLastValueBefore } from '@/utils/weatherUtils';
 
+function getAqiColor(aqi: number): string {
+  if (aqi <= 50)  return '#4caf50';   // green
+  if (aqi <= 100) return '#ffeb3b';   // yellow
+  if (aqi <= 150) return '#ff9800';   // orange
+  return '#f44336';                   // red
+}
+
+
 export default function AirQualityCard({ data }: { data: AirQualityData }) {
   console.log("AirQualityCard component rendered with air quality data:");
   console.log(data);
@@ -23,7 +31,9 @@ export default function AirQualityCard({ data }: { data: AirQualityData }) {
     <View>
       <View style={styles.card}>
         <Text style={styles.title}>AQI</Text>
-        <Text style={styles.aqi}>{aqi}</Text>
+        <View style={[styles.circle, { backgroundColor: getAqiColor(aqi) }]}>
+          <Text style={styles.circleText}>{aqi}</Text>
+        </View>
         <Text style={styles.category}>{category}</Text>
       </View>
     </View>
@@ -36,9 +46,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
     elevation: 2,
   },
   title: {
@@ -46,13 +53,23 @@ const styles = StyleSheet.create({
     color: "#444",
     fontWeight: '600',
   },
-  aqi: {
+  circle: {
+    width: 24,
+    height: 24,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 8,
-    fontSize: 32,
-    fontWeight: '800',
+  },
+  circleText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
   category: {
     marginLeft: 8,
     color: '#555',
+    fontSize: 14,
+    fontFamily: "Montserrat-Regular",
   },
 });

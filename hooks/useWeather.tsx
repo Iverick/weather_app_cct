@@ -202,6 +202,7 @@ export function useWeatherHook() {
   ) => {
     setLoading(true);
     setWeather(null);
+    setAirQuality(null);
     setError(null);
     setLastFetchSource('city');
 
@@ -226,6 +227,9 @@ export function useWeatherHook() {
    * @param label  e.g. "Dublin, Leinster, Ireland"
    */
   const fetchCachedWeather = async (label: string): Promise<boolean> => {
+    setAirQuality(null);
+    setError(null);
+
     const cacheKey = `city:${label.toLowerCase()}`;
     const cachedWeather = await getCached<WeatherData>(cacheKey);
     
@@ -246,6 +250,7 @@ export function useWeatherHook() {
     setCity("");
     setLoading(true);
     setWeather(null);
+    setAirQuality(null);
     setError(null);
     setLastFetchSource('location');
 
