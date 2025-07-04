@@ -53,6 +53,12 @@ const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <WeatherProvider>{children}</WeatherProvider>
 );
 
+jest.mock('@/utils/weatherCache', () => ({
+  getCached: jest.fn().mockResolvedValue(null),
+  setCached: jest.fn(),
+  getLastQuery: jest.fn().mockResolvedValue(null),
+  saveLastQuery: jest.fn().mockResolvedValue(undefined),
+}));
 
 describe('useWeather hook', () => {
   it('starts with the correct defaults', () => {
@@ -64,7 +70,7 @@ describe('useWeather hook', () => {
 
     expect(city).toBe('');
     expect(selectedLocation).toBeNull();
-    expect(loading).toBe(false);
+    expect(loading).toBe(true);
     expect(weather).toBeNull();
     expect(error).toBeNull();
     expect(useFahrenheit).toBe(false);
@@ -123,8 +129,6 @@ describe('useWeather hook', () => {
         return () => {};
       });
 
-    // Stub getLastCacheKey → some key, and getCached → fake data
-    jest.spyOn(cacheModule, 'getLastCacheKey').mockResolvedValueOnce('coords:foo');
     const fakeWeather = {
       location: 'LC',
       temperature: 2,

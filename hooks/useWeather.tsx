@@ -3,7 +3,7 @@ import * as Location from 'expo-location';
 import NetInfo from '@react-native-community/netinfo';
 import { buildWeatherUrl } from '@/utils/buildWeatherUrl';
 import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
-import { getCached, setCached } from '@/utils/weatherCache';
+import { getCached, setCached, getLastQuery, saveLastQuery } from '@/utils/weatherCache';
 import { WeatherContext } from '@/providers/WeatherProvider';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 
@@ -57,6 +57,25 @@ export function useWeatherHook() {
       setIsConnected(state.isConnected ?? false);
     });
     return () => sub();
+  }, []);
+
+  /**
+   * On mount, if nothing in state, try to load last query
+   */ 
+  useEffect(() => {
+    (async () => {
+      if (!weather) {
+        setLoading(true);
+        const last = await getLastQuery();
+        if (last) {
+          // Set timeout here for smoother UX on initial page load
+          setTimeout(() => {
+            setWeather(last)
+          }, 1000);
+        }
+        setLoading(false);
+      }
+    })();
   }, []);
 
   // Use effect hook to automatically refetch weather data if the unit system switch was toggled
@@ -293,6 +312,7 @@ export function useWeatherHook() {
     setWeather(result);
     // Cache weather data
     await setCached(cacheKey, result);
+    await saveLastQuery(result);
   }
 
   return {
