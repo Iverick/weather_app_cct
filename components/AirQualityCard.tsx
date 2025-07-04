@@ -1,13 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { AirQualityData } from '@/hooks/useWeather';
+import { getLastValueBefore } from '@/utils/weatherUtils';
 
 export default function AirQualityCard({ data }: { data: AirQualityData }) {
   console.log("AirQualityCard component rendered with air quality data:");
   console.log(data);
 
-  const idx = data.hourly.time.length - 1;
-  const aqi = data.hourly.european_aqi[idx];
+  // Use getLastValueBefore helper to pull the closest AQI value from data.hourly.european_aqi array
+  const aqi = getLastValueBefore(
+    data.hourly.time,
+    data.hourly.european_aqi,
+    new Date()
+  ) ?? data.hourly.european_aqi[data.hourly.european_aqi.length - 1]; // fallback if nothing found
 
   const category = aqi <= 50 ? 'Good'
                  : aqi <= 100 ? 'Moderate'

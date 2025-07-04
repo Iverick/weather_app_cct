@@ -33,23 +33,32 @@ export interface CityLocation {
   longitude: number;
 }
 
-export interface AirQuality {
-  time: string[];
-  pm2_5: number[];
-  pm10: number[];
-  carbon_monoxide: number[];
+export interface AirQualityData {
+  latitude:             number;
+  longitude:            number;
+  generationtime_ms:    number;
+  utc_offset_seconds:   number;
+  timezone:             string;
+  timezone_abbreviation:string;
+  elevation:            number;
+  hourly:               AirQualityHourly;
+}
+
+/**  
+ * Mirrors the `hourly` block returned by Open-Meteo’s Air Quality API
+ */
+export interface AirQualityHourly {
+  time:             string[];
+  pm10:             number[];
+  pm2_5:            number[];
+  carbon_monoxide:  number[];
   nitrogen_dioxide: number[];
-  sulphur_dioxide: number[];
-  ozone: number[];
-  european_aqi: number[];
+  sulphur_dioxide:  number[];
+  ozone:            number[];
+  european_aqi:     number[];
 }
 
 type Source = 'city' | 'location' | null;
-
-export type AirQualityData = {
-  hourly: AirQuality
-};
-
 export function useWeatherHook() {
   const [city, setCity] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<CityLocation | null>(null);
@@ -342,11 +351,8 @@ export function useWeatherHook() {
   async function fetchAirQuality(latitude: number, longitude: number) {
     const url = buildAirQualityUrl(latitude, longitude);
     const res = await fetch(url)
-    const data: AirQualityData = await res.json();
-    console.log("340. useWeather. Air quality data fetched:");
-    console.log(data);
+    const data = (await res.json()) as AirQualityData;
     setAirQuality(data);
-    console.log(airQuality);
   }
 
   return {
