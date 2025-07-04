@@ -25,6 +25,7 @@ jest.mock('expo-location', () => ({
 import * as geo from '../utils/geocoding';
 import * as cache from '../utils/weatherCache';
 import * as urlBuilder from '../utils/buildWeatherUrl';
+import { WeatherProvider } from '@/providers/WeatherProvider';
 
 jest.spyOn(geo, 'fetchCityCoordinates').mockResolvedValue([
   { name: 'Test City', country: 'TC', latitude: 51, longitude: -0.1 }
@@ -47,9 +48,15 @@ global.fetch = jest.fn().mockResolvedValue({
   })
 } as any);
 
+// Create a simple wrapper that provides the context
+const wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <WeatherProvider>{children}</WeatherProvider>
+);
+
+
 describe('useWeather hook', () => {
   it('starts with the correct defaults', () => {
-    const { result } = renderHook(() => useWeather());
+    const { result } = renderHook(() => useWeather(), { wrapper });
     const {
       city, selectedLocation, loading, weather,
       error, useFahrenheit, isConnected
@@ -77,7 +84,7 @@ describe('useWeather hook', () => {
     // Mock the cache to return a fake weather object
     jest.spyOn(cacheModule, 'getCached').mockResolvedValueOnce(fakeWeather);
 
-    const { result, waitFor } = renderHook(() => useWeather());
+    const { result, waitFor } = renderHook(() => useWeather(), { wrapper });
 
     let hit: boolean = false;
     // Call fetchCachedWeather and await its completion
@@ -92,7 +99,7 @@ describe('useWeather hook', () => {
   });
 
   it('fetchWeather (city) populates weather via network and caches it', async () => {
-    const { result } = renderHook(() => useWeather());
+    const { result } = renderHook(() => useWeather(), { wrapper });
 
     // Call fetchWeather and await its completion
     await act(async () => {
@@ -129,7 +136,7 @@ describe('useWeather hook', () => {
     };
     jest.spyOn(cacheModule, 'getCached').mockResolvedValueOnce(fakeWeather);
 
-    const { result } = renderHook(() => useWeather());
+    const { result } = renderHook(() => useWeather(), { wrapper });
 
     // Call fetchWeatherForCurrentLocation
     await act(async () => {

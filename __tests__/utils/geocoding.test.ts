@@ -80,7 +80,7 @@ describe('fetchCitiesList', () => {
     const list = await fetchCitiesList('Te');
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://geocoding-api.open-meteo.com/v1/search?name=Te&count=6'
+      'https://geocoding-api.open-meteo.com/v1/search?name=Te&count=10'
     );
     expect(list).toEqual(apiResponse.results as GeoLocation[]);
   });
