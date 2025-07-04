@@ -51,18 +51,6 @@ export default function WeatherScreen() {
 
   const router = useRouter();
 
-  // Use effect hook to automatically refetch weather data if the unit system switch was toggled
-  useEffect(() => {
-    if (!weather) return;
-
-    // Allows to properly refetch weather data in fahrenheit units for the last search location
-    if (lastFetchSource === 'city') {
-      handleSearch();
-    } else if (lastFetchSource === 'location') {
-      handleUseLocation(true);
-    }
-  }, [useFahrenheit]);
-
   /**
    * Whenever `weather` changes, animate layout
    */ 

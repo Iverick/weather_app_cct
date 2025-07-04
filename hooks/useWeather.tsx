@@ -59,6 +59,18 @@ export function useWeatherHook() {
     return () => sub();
   }, []);
 
+  // Use effect hook to automatically refetch weather data if the unit system switch was toggled
+  useEffect(() => {
+    if (!weather) return;
+
+    // Allows to properly refetch weather data in fahrenheit units for the last search location
+    if (lastFetchSource === 'city') {
+      handleSearch();
+    } else if (lastFetchSource === 'location') {
+      handleUseLocation(true);
+    }
+  }, [useFahrenheit]);
+
   /*
    * Search weather for typed city value
    */
@@ -117,6 +129,7 @@ export function useWeatherHook() {
    * Search weather for the city selected from the searched cities dropdown menu
    */
   const handleSelectHistory = async (searchedCity: string) => {
+    setLastFetchSource('city');
     setCity(searchedCity);
     setError("");
 

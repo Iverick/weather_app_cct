@@ -6,5 +6,9 @@ export const WeatherContext = createContext<ReturnType<typeof useWeatherHook> | 
 // WeatherProvider allows components to access useWeather hook data and methods
 export function WeatherProvider({ children }: { children: React.ReactNode }) {
   const value = useWeatherHook();
-  return <WeatherContext.Provider value={value}>{children}</WeatherContext.Provider>;
+  return (
+    <WeatherContext.Provider value={value}>
+      {children}
+    </WeatherContext.Provider>
+  );
 }
