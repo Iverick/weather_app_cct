@@ -17,3 +17,6 @@ Follow the on-screen instructions to launch on Web, Android, or iOS.
 
 **Run the unit tests**
 `npm test`
+
+**Additional Information**
+Look other README files includes to the repository to find more information about API integration, components documentation and applied testing strategies.
