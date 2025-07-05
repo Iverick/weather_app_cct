@@ -5,8 +5,9 @@
 `cd weather_app_cct`
 
 **Install packages**
-`npm install --force`
-Use --force if you run into version conflicts or peer-dependency warnings.
+`npm cache clean --force`
+`npm install --legacy-peer-deps`
+Use --legacy-peer-deps if you run into version conflicts or peer-dependency warnings.
 
 **Start the Expo development server** 
 `npm run start`
@@ -20,3 +21,6 @@ Follow the on-screen instructions to launch on Web, Android, or iOS.
 
 **Additional Information**
 Look other README files includes to the repository to find more information about API integration, components documentation and applied testing strategies.
+
+**Project Github link**
+`https://github.com/CCT-Dublin/asd24-t3-ca3-Iverick`
