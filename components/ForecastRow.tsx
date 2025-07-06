@@ -26,6 +26,7 @@ export default function ForecastRow({
       </Text>
 
       <MaterialCommunityIcons
+        testID="forecast-icon"
         name={getWeatherIconName(item.code)}
         size={32}
         color={getWeatherColor(item.code)}
