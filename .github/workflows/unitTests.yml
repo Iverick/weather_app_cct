@@ -1,0 +1,31 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24.x'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run unit tests
+        run: npm test -- --ci --passWithNoTests --watchAll=false
+        env:
+          CI: true
