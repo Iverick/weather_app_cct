@@ -12,7 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { WeatherData } from '@/hooks/useWeather';
 import { getWeatherIconName } from '@/utils/weatherCondition';
 import { getWeatherColor } from '@/utils/weatherCondition';
-import { formatCurrentTime } from '@/utils/time';
+import { formatCurrentTime } from '@/utils/timeFormatter';
 
 interface Props {
   weather: WeatherData;

@@ -6,6 +6,7 @@ import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
 import { getCached, setCached, getLastQuery, saveLastQuery } from '@/utils/weatherCache';
 import { buildWeatherUrl, buildAirQualityUrl } from '@/utils/buildWeatherUrl';
+import { getLastValueBefore } from '@/utils/weatherUtils';
 
 export interface ForecastDay {
   date: string;
@@ -70,11 +71,6 @@ export function useWeatherHook() {
   const [airQuality, setAirQuality] = useState<AirQualityData | null>(null);
 
   const { history, addToHistory, clearHistory } = useSearchHistory();
-
-  useEffect(() => {
-    console.log("44. useWeather. CityLocation set")
-    console.log(selectedLocation)
-  }, [selectedLocation]);
 
   // Subscribe to connectivity changes
   useEffect(() => {
@@ -173,10 +169,6 @@ export function useWeatherHook() {
    * Search weather for the city selected from the searched cities dropdown menu
    */
   const handleSelectHistory = async (searchedCity: string) => {
-    setLastFetchSource('city');
-    setCity(searchedCity);
-    setError("");
-
     // Try to get from cache
     await fetchCachedWeather(searchedCity);
   }
@@ -185,6 +177,13 @@ export function useWeatherHook() {
    * Fetch weather for the device location
    */
   const handleUseLocation = async (forceCall: boolean = false) => {
+    // If user wants to enforce an API call, check the device is online
+    if (!isConnected && forceCall) {
+      setError("No network connection.");
+      setLoading(false);
+      return;
+    }
+
     await fetchWeatherForCurrentLocation(forceCall);
   };
 
@@ -226,6 +225,9 @@ export function useWeatherHook() {
    * @param label  e.g. "Dublin, Leinster, Ireland"
    */
   const fetchCachedWeather = async (label: string): Promise<boolean> => {
+    setLastFetchSource('city');
+    setCity(label);
+    setError("");
     setAirQuality(null);
     setError(null);
 
@@ -275,13 +277,6 @@ export function useWeatherHook() {
         }
       }
 
-      // If cached data not found, check if the device is online before making an API call
-      if (!isConnected) {
-        setError("No network connection.");
-        setLoading(false);
-        return;
-      }
-
       // TODO: Ideally I would have to get a city name using device coords
       //       instead of putting "Current location" string.
       //       Requires too much hustle to get it done at this point though.
@@ -309,15 +304,12 @@ export function useWeatherHook() {
     // Humidity returned in a separate object, that contains 2 arrays of time and humidity values
     // It requires to compare current time value with hourlyTimes to get a required index for both array
     const currentTime = weatherData.current_weather.time;
-    const hourlyTimes = weatherData.hourly.time.map((t: string) => new Date(t));
-    const currentDate = new Date(currentTime);
-    let humidity = 0;
-
-    // Loop through hourly times array until we get index of the closest to the current time value
-    for (let i = 0; i < hourlyTimes.length; i++) {
-      if (hourlyTimes[i] <= currentDate) humidity = weatherData.hourly.relative_humidity_2m[i];
-      else break;
-    }
+    const humidity =
+      getLastValueBefore(
+        weatherData.hourly.time,
+        weatherData.hourly.relative_humidity_2m,
+        currentTime
+      ) ?? weatherData.hourly.relative_humidity_2m[0];
 
      // Get weather forecast data from a dedicated array inside weatherData
     const forecast = weatherData.daily.time.map((date: string, i: number) => ({

@@ -21,7 +21,7 @@ import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
-import AirQualityCard from './AirQualityCard';
+import AirQualityCard from '@/components/AirQualityCard';
 
 // On Android, enable LayoutAnimation
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {

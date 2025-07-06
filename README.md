@@ -24,3 +24,6 @@ Look other README files includes to the repository to find more information abou
 
 **Project Github link**
 `https://github.com/CCT-Dublin/asd24-t3-ca3-Iverick`
+
+**Notes**
+Some of the app functionality (like forcing refetching the weather data on scrolling the weather component) works ONLY on the physical phone or phone emulator.

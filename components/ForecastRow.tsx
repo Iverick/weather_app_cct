@@ -1,7 +1,8 @@
-import { ForecastDay } from "@/hooks/useWeather";
-import { getWeatherColor, getWeatherIconName } from "@/utils/weatherCondition";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, View, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { ForecastDay } from "@/hooks/useWeather";
+import { formatForecastDate } from "@/utils/timeFormatter";
+import { getWeatherColor, getWeatherIconName } from "@/utils/weatherCondition";
 
 export default function ForecastRow({
   item,
@@ -10,10 +11,7 @@ export default function ForecastRow({
   item: ForecastDay;
   useFahrenheit: boolean;
 }) {
-  const dayLabel = new Date(item.date).toLocaleDateString(
-    undefined, {
-      weekday: 'short'
-  });
+  const dayLabel = formatForecastDate(item.date);
   const min = item.min.toFixed(0);
   const max = item.max.toFixed(0);
   const color = getWeatherColor(item.code);
