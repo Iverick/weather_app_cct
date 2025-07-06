@@ -18,12 +18,6 @@ const SAMPLE_DATA: AirQualityData = {
       '2025-07-04T18:00'
     ],
     european_aqi: [ 30,  80, 120 ],
-    pm2_5:         [  5,  10,  15 ],
-    pm10:          [ 10,  20,  30 ],
-    carbon_monoxide:  [0,0,0],
-    nitrogen_dioxide: [0,0,0],
-    sulphur_dioxide:  [0,0,0],
-    ozone:            [0,0,0],
   }
 };
 

@@ -49,12 +49,6 @@ export interface AirQualityData {
  */
 export interface AirQualityHourly {
   time:             string[];
-  pm10:             number[];
-  pm2_5:            number[];
-  carbon_monoxide:  number[];
-  nitrogen_dioxide: number[];
-  sulphur_dioxide:  number[];
-  ozone:            number[];
   european_aqi:     number[];
 }
 

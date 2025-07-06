@@ -20,7 +20,6 @@ export function getAqiCategory(aqi: number): string {
 
 export default function AirQualityCard({ data }: { data: AirQualityData }) {
   console.log("AirQualityCard component rendered with air quality data:");
-  console.log(data);
 
   // Use getLastValueBefore helper to pull the closest AQI value from data.hourly.european_aqi array
   const aqi = getLastValueBefore(

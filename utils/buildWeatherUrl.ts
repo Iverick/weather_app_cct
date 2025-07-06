@@ -21,12 +21,6 @@ export function buildWeatherUrl(params: {
 
 export function buildAirQualityUrl(lat: number, lon: number, timezone = 'auto') {
   const vars = [
-    'pm2_5',
-    'pm10',
-    'carbon_monoxide',
-    'nitrogen_dioxide',
-    'sulphur_dioxide',
-    'ozone',
     'european_aqi',
   ].join(',');
 
