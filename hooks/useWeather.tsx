@@ -53,6 +53,7 @@ export interface AirQualityHourly {
 }
 
 type Source = 'city' | 'location' | null;
+
 export function useWeatherHook() {
   const [city, setCity] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<CityLocation | null>(null);
@@ -198,13 +199,11 @@ export function useWeatherHook() {
     setError(null);
     setLastFetchSource('city');
 
-    console.log("68. useWeather. fetching weather for: ")
-    console.log(label)
+    console.log("202. useWeather. fetching weather for: ")
 
     try {
       // First, try to fetch a cached weather data for the city from the storage
       const cacheKey = `city:${label.toLowerCase()}`;
-
       await fetchAndParseWeather(latitude, longitude, `${label}`, cacheKey);
     } catch (error: any) {
       setError(error.message);
@@ -228,8 +227,7 @@ export function useWeatherHook() {
     const cacheKey = `city:${label.toLowerCase()}`;
     const cachedWeather = await getCached<WeatherData>(cacheKey);
     
-    console.log("93. fetchCachedWeather. Fetched cached weather data");
-    console.log(cachedWeather);
+    console.log("231. fetchCachedWeather. Fetched cached weather data");
 
     if (cachedWeather) {
       setWeather(cachedWeather);
@@ -265,7 +263,7 @@ export function useWeatherHook() {
       if (!forceCall) {
         const cached = await getCached<WeatherData>(cacheKey);
         if (cached) {
-          console.log("122. useWeather. fetching weather data from cache");
+          console.log("266. useWeather. fetching weather data from cache");
           setWeather(cached);
           return;
         }
@@ -288,12 +286,10 @@ export function useWeatherHook() {
    */
   async function fetchAndParseWeather(latitude: number, longitude: number, label: string, cacheKey: string) {
     // Create an API URL and query it to get weatherData response
-    console.log("240. useWeather. fetchAndParseWeather called");
     const url = buildWeatherUrl({ latitude, longitude, useFahrenheit });
     const weatherRes = await fetch(url);
     const weatherData = await weatherRes.json();
-    console.log("244. useWeather. weatherData fetched from API");
-    console.log(weatherData);
+    console.log("293. useWeather. weatherData fetched from API");
 
     // Humidity returned in a separate object, that contains 2 arrays of time and humidity values
     // It requires to compare current time value with hourlyTimes to get a required index for both array

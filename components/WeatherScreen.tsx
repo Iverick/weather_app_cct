@@ -16,11 +16,8 @@ import { Stack, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { PlusIcon, HomeIcon } from 'react-native-heroicons/outline';
 import { useWeather } from '@/hooks/useWeather';
-import WeatherSearch from '@/components/WeatherSearch';
 import CurrentWeather from '@/components/CurrentWeather';
 import ForecastList from '@/components/ForecastList';
-import { useSearchHistory } from '@/hooks/useSearchHistory';
-import { fetchCityCoordinates, formatLocation } from '@/utils/geocoding';
 import AirQualityCard from '@/components/AirQualityCard';
 
 // On Android, enable LayoutAnimation
@@ -32,21 +29,12 @@ export default function WeatherScreen() {
   const {
     weather,
     airQuality,
-    city,
-    setCity,
     loading,
     error,
-    setError,
-    fetchWeather,
-    fetchCachedWeather,
-    fetchWeatherForCurrentLocation,
     useFahrenheit,
     setUseFahrenheit,
     lastFetchSource,
     selectedLocation,
-    setSelectedLocation,
-    isConnected,
-    setLoading,
     handleSearch,
     handleUseLocation,
   } = useWeather();

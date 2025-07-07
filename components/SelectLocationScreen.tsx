@@ -10,11 +10,8 @@ export default function SelectLocationScreen() {
     history,
     error,
     loading,
-    addToHistory,
     clearHistory,
-    selectedLocation,
     setSelectedLocation,
-    fetchWeather,
     handleSearch,
     handleSelectHistory,
   } = useWeather();

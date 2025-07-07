@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, FlatList, Text, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { ForecastDay } from '@/hooks/useWeather';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getWeatherColor, getWeatherIconName } from '@/utils/weatherCondition';
 import ForecastRow from '@/components/ForecastRow';
 
 interface Props {

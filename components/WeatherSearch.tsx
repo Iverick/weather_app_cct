@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Switch, Text, Pressable, FlatList, TouchableOpacity } from 'react-native';
 import { MagnifyingGlassIcon, TrashIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { fetchCitiesList, formatLocation, GeoLocation } from '@/utils/geocoding';
@@ -36,8 +36,6 @@ export default function WeatherSearch({
     // Use timer here to prevent an API call immediately after detecting an added char to city state variable
     const handler = setTimeout(async () => {
       const matches = await fetchCitiesList(city);
-      // console.log("42. WeatherSearch. fetched matches");
-      // console.log(matches);
       setSuggestions(matches);
     }, 500);
 
@@ -114,8 +112,6 @@ export default function WeatherSearch({
               renderItem={({ item: location }) => (
                 <TouchableOpacity
                   onPressIn={() => {
-                  console.log("selected city");
-                  console.log(location);
                   setSelectedLocation({
                     name: location.name,
                     country: location.country,

@@ -32,6 +32,7 @@ const FAKE_AQI_URL = 'https://api.open-meteo.com/fake-aqi-url';
 jest.spyOn(geo, 'fetchCityCoordinates').mockResolvedValue([
   { name: 'Test City', country: 'TC', latitude: 51, longitude: -0.1 }
 ]);
+
 jest.spyOn(urlBuilder, 'buildAirQualityUrl')
       .mockReturnValue(FAKE_AQI_URL);
 
@@ -64,7 +65,7 @@ jest.mock('@/utils/weatherCache', () => ({
   saveLastQuery: jest.fn().mockResolvedValue(undefined),
 }));
 
-describe('useWeather hook', () => {
+describe('useWeather hook fetches weather data', () => {
   it('starts with the correct defaults', () => {
     const { result } = renderHook(() => useWeather(), { wrapper });
     const {
@@ -148,7 +149,7 @@ describe('useWeather hook', () => {
 
     // Call fetchWeatherForCurrentLocation
     await act(async () => {
-      await result.current.fetchWeatherForCurrentLocation();
+      await result.current.fetchWeatherForCurrentLocation(false);
     });
 
     // Check that the weather was loaded from cache
@@ -167,5 +168,41 @@ describe('useWeather hook', () => {
     expect(urlBuilder.buildAirQualityUrl).toHaveBeenCalledWith(12.34, 56.78);
     expect(global.fetch).toHaveBeenCalledWith(FAKE_AQI_URL);
     expect(result.current.airQuality).not.toBeNull();
+  });
+});
+
+describe('useWeather offline error handling', () => {
+  beforeEach(() => {
+    // by default, no cache
+    jest.spyOn(cacheModule, 'getCached').mockResolvedValue(null);
+
+    jest
+      .spyOn(NetInfo, 'addEventListener')
+      .mockImplementationOnce(cb => {
+        cb({ isConnected: false });
+        return () => {};
+      });
+  });
+
+  it('handleSearch sets error when offline', async () => {
+    const { result } = renderHook(() => useWeather(), { wrapper });
+
+    await act(async () => {
+      await result.current.handleSearch();
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBe('No network connection.');
+  });
+
+  it('handleUseLocation sets error when offline and no cache', async () => {
+    const { result } = renderHook(() => useWeather(), { wrapper });
+
+    await act(async () => {
+      await result.current.handleSearch();
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBe('No network connection.');
   });
 });
