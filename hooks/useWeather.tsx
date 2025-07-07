@@ -126,6 +126,7 @@ export function useWeatherHook() {
     // No location set - user tries to force weather query for the city fetches from the history list
     // then it will try to get coordinates for the city
     if (!location) {
+      console.log("129. handleSearch. Fetched location details");
       // Parse city string into a proper format required by the geocoding API
       const cityParts = city.split(",").map(s => s.trim());
       const first = cityParts[0];

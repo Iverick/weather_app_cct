@@ -56,6 +56,7 @@ This section outlines our overall approach to ensuring the Weather App is reliab
   - **Utilities:** URL builders, `formatLocation`, `geocoding`  
   - **Components:** Snapshot and behavior tests for `WeatherSearch`, `AirQualityCard`, `CurrentWeather`, `Weather Screen`.  
 - **Command:** `npm test`
+- **CI Integration:** A GitHub Actions workflow (`.github/workflows/unitTests.yml`) runs `npm test` on every push and pull request—ensure the project is configured to run this CI.
 
 ---
 
